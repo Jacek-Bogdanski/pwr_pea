@@ -1,0 +1,3 @@
+"C:\Program Files\JetBrains\CLion 2023.1.1\bin\cmake\win\x64\bin\cmake.exe" -E rm -f CMakeFiles\pea_2.dir/objects.a
+C:\PROGRA~1\JETBRA~1\CLION2~1.1\bin\mingw\bin\ar.exe qc CMakeFiles\pea_2.dir/objects.a @CMakeFiles\pea_2.dir\objects1
+C:\PROGRA~1\JETBRA~1\CLION2~1.1\bin\mingw\bin\G__~1.EXE -O3 -DNDEBUG -static -static-libgcc -static-libstdc++ -Wl,--whole-archive CMakeFiles\pea_2.dir/objects.a -Wl,--no-whole-archive -o pea_2.exe -Wl,--out-implib,libpea_2.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\pea_2.dir\linkLibs.rsp
