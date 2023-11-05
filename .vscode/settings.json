@@ -1,0 +1,12 @@
+{
+    "cmake.sourceDirectory": "/Users/jacekbogdanski/Library/Mobile Documents/com~apple~CloudDocs/PWR/ITE Semestr 5/PEA/PEA_REPO/pea_2",
+    "files.associations": {
+        "*.html": "twig",
+        "vector": "cpp",
+        "iostream": "cpp",
+        "fstream": "cpp",
+        "iomanip": "cpp",
+        "chrono": "cpp",
+        "iosfwd": "cpp"
+    }
+}
