@@ -25,12 +25,22 @@
 namespace PEA {
 
     class TSP {
-    public:
-        void handleConfigFile();
 
+    public:
+        /**
+        * @brief Konstruktor
+        */
         TSP(std::string configFileName);
 
+        /**
+        * @brief Destruktor
+        */
         ~TSP();
+
+        /**
+        * @brief Uruchomienie programu
+        */ 
+        void handleConfigFile();
 
     private:
         std::string configFileName;
@@ -42,39 +52,68 @@ namespace PEA {
         std::ofstream outputFile;
         std::ifstream sourceFile;
 
+        /**
+        * @brief Macierz sąsiedztwa
+        */
         std::vector<std::vector<int>> sourceMatrix;
 
-
-        void initFiles();
-
-        void handleConfigLine(std::string line);
-
-        bool readSourceFile();
-
-        int countConfigLines();
-
-        void setOutputFileName();
-
-        std::pair<std::vector<int>, int> SimulatedAnnealing(const std::vector<std::vector<int>>& distanceMatrix, double initialTemperature, double coolingRate, int epochs);
+        /**
+        * @brief Inicjalizacja plików
+        */
+        void TSP::initFiles();
 
         /**
-         * @brief Ocena długości trasy
-         * @param route
-         * @param distanceMatrix
-         * @return double
-         */
-        double evaluateRoute(const std::vector<int>& route, const std::vector<std::vector<int>>& distanceMatrix);
+        * @brief Sprawdzenie liczby linii w pliku konfiguracyjnym
+        * @return int
+        */
+        int TSP::countConfigLines();
 
         /**
-         * @brief Generowanie losowej trasy
-         * @return Losowa trasa
-         */
-        std::vector<int> generateRandomRoute(int n);
+        * @brief Ustawienie parametrów
+        */
+        void TSP::setOutputFileName();
 
         /**
-         * @brief Zamiana miast w trasie
-         */
-        void swapCities(std::vector<int>& route, int index1, int index2);
+        * @brief Wykonanie operacji z linii pliku konfiguracyjnego
+        */
+        void TSP::handleConfigLine(std::string line);
+
+        /**
+        * Wczytanie macierzy odległości z pliku
+        */
+        bool TSP::readSourceFile();
+    
+        /**
+        * @brief Algorytm Symulowanego Wyzarzania dla problemu TSP
+        */
+        std::pair<std::vector<int>, int> TSP::SimulatedAnnealing(const std::vector<std::vector<int>>& distanceMatrix, double alpha, int swapType, int coolType);
+
+        /**
+        * @brief Ocena długości trasy
+        */
+        double TSP::evaluateRoute(const std::vector<int>& route, const std::vector<std::vector<int>>& distanceMatrix);
+
+        /**
+        * @brief Generowanie losowej trasy
+        * @return Losowa trasa
+        */
+        std::vector<int> TSP::generateRandomRoute(int n);
+
+        /**
+        * @brief Zamiana 2 miast w trasie
+        */
+        void TSP::swap2Cities(std::vector<int>& route);
+
+        /**
+        * @brief Zamiana 3 miast w trasie
+        */
+        void TSP::swap3Cities(std::vector<int>& route);
+
+        /**
+        * @brief Obliczenie temperatury początkowej
+        */
+        double TSP::calculateInitialTemperature(double initialDistance, double acceptanceProbability);
+
     };
 
 
