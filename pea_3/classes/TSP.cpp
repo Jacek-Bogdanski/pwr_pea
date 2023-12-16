@@ -28,7 +28,7 @@ namespace PEA {
      */
     TSP::TSP(std::string configFileName) {
         this->configFileName = configFileName;
-        this->initFiles();
+        initFiles();
     }
 
     /**
@@ -208,7 +208,7 @@ namespace PEA {
                     auto start_time = std::chrono::high_resolution_clock::now();
 
                     // Wywołanie algorytmu Symulowanego Wyżarzania
-                    std::pair<std::vector<int>, int> result = this->SimulatedAnnealing(this->sourceMatrix, initialTemperature, alpha, int swapType = 0, int coolType = 0);
+                    std::pair<std::vector<int>, int> result = this->SimulatedAnnealing(this->sourceMatrix, alpha, swapType, coolType);
 
                     // Wynik pomiaru czasu
                     auto end_time = std::chrono::high_resolution_clock::now();
@@ -279,7 +279,8 @@ namespace PEA {
         double bestCost = evaluateRoute(bestSolution, distanceMatrix);
         int noBetter = 0;
 
-        double initialTemperature = calculateInitialTemperature(bestCost)
+        double acceptanceProbability = 0.98;
+        double initialTemperature = calculateInitialTemperature(bestCost, acceptanceProbability);
         double currentTemperature = initialTemperature;
 
         // Pętla główna
@@ -367,6 +368,7 @@ namespace PEA {
      * @brief Zamiana 2 miast w trasie
      */
     void TSP::swap2Cities(std::vector<int>& route) {
+        int n = route.size();
         int index1 = rand() % (n - 1) + 1;
         int index2 = rand() % (n - 1) + 1;
         std::swap(route[index1], route[index2]);
@@ -376,6 +378,7 @@ namespace PEA {
      * @brief Zamiana 3 miast w trasie
      */
     void TSP::swap3Cities(std::vector<int>& route) {
+        int n = route.size();
         int index1 = rand() % (n - 1) + 1;
         int index2 = rand() % (n - 1) + 1;
         int index3 = rand() % (n - 1) + 1;

@@ -60,59 +60,59 @@ namespace PEA {
         /**
         * @brief Inicjalizacja plików
         */
-        void TSP::initFiles();
+        void initFiles();
 
         /**
         * @brief Sprawdzenie liczby linii w pliku konfiguracyjnym
         * @return int
         */
-        int TSP::countConfigLines();
+        int countConfigLines();
 
         /**
         * @brief Ustawienie parametrów
         */
-        void TSP::setOutputFileName();
+        void setOutputFileName();
 
         /**
         * @brief Wykonanie operacji z linii pliku konfiguracyjnego
         */
-        void TSP::handleConfigLine(std::string line);
+        void handleConfigLine(std::string line);
 
         /**
         * Wczytanie macierzy odległości z pliku
         */
-        bool TSP::readSourceFile();
+        bool readSourceFile();
     
         /**
         * @brief Algorytm Symulowanego Wyzarzania dla problemu TSP
         */
-        std::pair<std::vector<int>, int> TSP::SimulatedAnnealing(const std::vector<std::vector<int>>& distanceMatrix, double alpha, int swapType, int coolType);
+        std::pair<std::vector<int>, int> SimulatedAnnealing(const std::vector<std::vector<int>>& distanceMatrix, double alpha, int swapType, int coolType);
 
         /**
         * @brief Ocena długości trasy
         */
-        double TSP::evaluateRoute(const std::vector<int>& route, const std::vector<std::vector<int>>& distanceMatrix);
+        double evaluateRoute(const std::vector<int>& route, const std::vector<std::vector<int>>& distanceMatrix);
 
         /**
         * @brief Generowanie losowej trasy
         * @return Losowa trasa
         */
-        std::vector<int> TSP::generateRandomRoute(int n);
+        std::vector<int> generateRandomRoute(int n);
 
         /**
         * @brief Zamiana 2 miast w trasie
         */
-        void TSP::swap2Cities(std::vector<int>& route);
+        void swap2Cities(std::vector<int>& route);
 
         /**
         * @brief Zamiana 3 miast w trasie
         */
-        void TSP::swap3Cities(std::vector<int>& route);
+        void swap3Cities(std::vector<int>& route);
 
         /**
         * @brief Obliczenie temperatury początkowej
         */
-        double TSP::calculateInitialTemperature(double initialDistance, double acceptanceProbability);
+        double calculateInitialTemperature(double initialDistance, double acceptanceProbability);
 
     };
 
