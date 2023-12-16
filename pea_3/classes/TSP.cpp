@@ -4,7 +4,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <vector>
+#include <std::vector>
 #include <climits>
 #include <algorithm>
 #include <sstream>
@@ -92,7 +92,7 @@ namespace PEA {
 
         while (getline(this->configFile, line)) {
             std::istringstream iss(line);
-            vector<std::string> tokens;
+            std::vector<std::string> tokens;
             std::string token;
 
             while (iss >> token) {
@@ -130,7 +130,7 @@ namespace PEA {
 
     void TSP::handleConfigLine(std::string line) {
         std::istringstream iss(line);
-        vector<std::string> tokens;
+        std::vector<std::string> tokens;
         std::string token;
 
         while (iss >> token) {
@@ -143,7 +143,7 @@ namespace PEA {
 
         this->sourceFileName = tokens[0];
         int repeatCount, expectedLength;
-        vector<int> values;
+        std::vector<int> values;
 
         std::istringstream(tokens[1]) >> repeatCount;
         std::istringstream(tokens[2]) >> expectedLength;
@@ -169,7 +169,7 @@ namespace PEA {
             auto start_time = chrono::high_resolution_clock::now();
 
             // Algorytm
-            pair<vector<int>, int> result = this->SimulatedAnnealing();
+            pair<std::vector<int>, int> result = this->SimulatedAnnealing();
 
             // Wynik pomiaru czasu
             auto end_time = chrono::high_resolution_clock::now();
@@ -214,7 +214,7 @@ namespace PEA {
         }
 
         // Dane z pliku
-        vector<vector<int>> matrix(n, vector<int>(n, 0));
+        std::vector<std::vector<int>> matrix(n, std::vector<int>(n, 0));
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
@@ -231,7 +231,7 @@ namespace PEA {
 
 
 // Algorytm Symulowanego Wyzarzania dla problemu TSP
-    pair<vector<int>, int> TSP::SimulatedAnnealing() {
+    pair<std::vector<int>, int> TSP::SimulatedAnnealing() {
         int n = this->sourceMatrix.size();
 
 
@@ -239,7 +239,7 @@ namespace PEA {
 
 
 
-        pair<vector<int>, int> result;
+        pair<std::vector<int>, int> result;
         result.first = this->finalPath;
         result.second = this->finalCost;
         return result;
