@@ -16,7 +16,7 @@
 namespace PEA {
 
 
-    TSP::TSP(string configFileName) {
+    TSP::TSP(std::string configFileName) {
         this->configFileName = configFileName;
         this->initFiles();
     }
@@ -33,17 +33,17 @@ namespace PEA {
         this->configFile.open(this->configFileName);
 
         if (!configFile.is_open()) {
-            cout << "Config file error. Make sure that file config.ini exists. " << endl;
+            std::cout << "Config file error. Make sure that file config.ini exists. " << std::endl;
             exit(1);
         }
 
         int configLineCount = this->countConfigLines();
         if (configLineCount == -1) {
-            cout << "Config file error. Make sure that file config.ini exists. " << endl;
+            std::cout << "Config file error. Make sure that file config.ini exists. " << std::endl;
             exit(1);
         }
         if (configLineCount == 0) {
-            cout << "Config file error. Make sure that file config.ini is not empty. " << endl;
+            std::cout << "Config file error. Make sure that file config.ini is not empty. " << std::endl;
             exit(1);
         }
 
@@ -108,12 +108,12 @@ namespace PEA {
 
     void TSP::handleConfigFile() {
         if (!this->configFile.is_open()) {
-            cout << "Config file error." << endl;
+            std::cout << "Config file error." << std::endl;
             exit(1);
         }
 
         if (!this->outputFile.is_open()) {
-            cout << "Output file error." << endl;
+            std::cout << "Output file error." << std::endl;
             exit(1);
         }
 
@@ -128,7 +128,7 @@ namespace PEA {
         return;
     }
 
-    void TSP::handleConfigLine(string line) {
+    void TSP::handleConfigLine(std::string line) {
         istringstream iss(line);
         vector<string> tokens;
         std::string token;
@@ -150,14 +150,14 @@ namespace PEA {
 
         // wyswietlenie linii informacyjnej
         this->outputFile << this->sourceFileName << " " << expectedLength << " ";
-        cout << this->sourceFileName << " " << expectedLength << " ";
+        std::cout << this->sourceFileName << " " << expectedLength << " ";
 
         for (size_t i = 3; i < tokens.size(); i++) {
             this->outputFile << tokens[i] << " ";
-            cout << tokens[i] << " ";
+            std::cout << tokens[i] << " ";
         }
-        this->outputFile << endl;
-        cout << endl;
+        this->outputFile << std::endl;
+        std::cout << std::endl;
 
         // Wczytaj dane z pliku
         if (!this->readSourceFile()) {
@@ -176,22 +176,22 @@ namespace PEA {
             auto duration = chrono::duration_cast<chrono::microseconds>(end_time - start_time);
             long double miliseconds = duration.count() / 1000.0;
             this->outputFile << fixed << setprecision(4) << miliseconds << " " << result.second << " [";
-            cout << fixed << setprecision(4) << miliseconds << " " << result.second << " [";
+            std::cout << fixed << setprecision(4) << miliseconds << " " << result.second << " [";
 
             // Wyświetl najlepszą trasę i jej koszt
             this->outputFile << result.first[0];
-            cout << result.first[0];
+            std::cout << result.first[0];
             for (int i=1;i<=this->sourceMatrix.size();i++) {
                 this->outputFile << " " << result.first[i];
-                cout << " " << result.first[i];
+                std::cout << " " << result.first[i];
             }
 
             // dopisz nawias koncowy
-            this->outputFile << "]" << endl;
-            cout << "]" << endl;
+            this->outputFile << "]" << std::endl;
+            std::cout << "]" << std::endl;
         }
-        this->outputFile << endl;
-        cout << endl;
+        this->outputFile << std::endl;
+        std::cout << std::endl;
 
         return;
     }
@@ -200,7 +200,7 @@ namespace PEA {
     bool TSP::readSourceFile() {
         this->sourceFile.open(sourceDirectory + this->sourceFileName);
         if (!this->sourceFile.is_open()) {
-            cout << "Source file error: " + this->sourceFileName + " not found in " + sourceDirectory << endl;
+            std::cout << "Source file error: " + this->sourceFileName + " not found in " + sourceDirectory << std::endl;
             return false;
         }
 
@@ -209,7 +209,7 @@ namespace PEA {
         this->sourceFile >> n;
 
         if (n < 0) {
-            cout << "Source file format error." << endl;
+            std::cout << "Source file format error." << std::endl;
             return false;
         }
 
