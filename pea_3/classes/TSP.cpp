@@ -4,12 +4,19 @@
 
 #include <iostream>
 #include <fstream>
-#include <std::vector>
+#include <vector>
 #include <climits>
 #include <algorithm>
 #include <sstream>
 #include <chrono>
 #include <iomanip>
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
 
 #include "TSP.h"
 
@@ -52,11 +59,11 @@ namespace PEA {
     }
 
 
-/**
- * @brief Funkcja sprawdza plik konfiguracyjny, oblicza ile linii kodu posiada plik config.ini
- *
- * @return int
- */
+    /**
+     * @brief Funkcja sprawdza plik konfiguracyjny, oblicza ile linii kodu posiada plik config.ini
+     *
+     * @return int
+     */
     int TSP::countConfigLines() {
         if (!this->configFile.is_open()) {
             return -1;
@@ -76,11 +83,11 @@ namespace PEA {
         return count;
     }
 
-/**
- * @brief Funkcja sprawdza plik konfiguracyjny, ustawia nazwe pliku wynikowego
- *
- * @return std::string
- */
+    /**
+     * @brief Funkcja sprawdza plik konfiguracyjny, ustawia nazwe pliku wynikowego
+     *
+     * @return std::string
+     */
     void TSP::setOutputFileName() {
         if (!this->configFile.is_open()) {
             return;
@@ -166,22 +173,22 @@ namespace PEA {
 
         for (int i = 1; i <= repeatCount; i++) {
             // Start pomiaru czasu
-            auto start_time = chrono::high_resolution_clock::now();
+            auto start_time = std::chrono::high_resolution_clock::now();
 
             // Algorytm
-            pair<std::vector<int>, int> result = this->SimulatedAnnealing();
+            std::pair<std::vector<int>, int> result = this->SimulatedAnnealing();
 
             // Wynik pomiaru czasu
-            auto end_time = chrono::high_resolution_clock::now();
-            auto duration = chrono::duration_cast<chrono::microseconds>(end_time - start_time);
+            auto end_time = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
             long double miliseconds = duration.count() / 1000.0;
-            this->outputFile << fixed << setprecision(4) << miliseconds << " " << result.second << " [";
-            std::cout << fixed << setprecision(4) << miliseconds << " " << result.second << " [";
+            this->outputFile << std::fixed << std::setprecision(4) << miliseconds << " " << result.second << " [";
+            std::cout << std::fixed << std::setprecision(4) << miliseconds << " " << result.second << " [";
 
             // Wyświetl najlepszą trasę i jej koszt
             this->outputFile << result.first[0];
             std::cout << result.first[0];
-            for (int i=1;i<=this->sourceMatrix.size();i++) {
+            for (int i = 1; i <= this->sourceMatrix.size(); i++) {
                 this->outputFile << " " << result.first[i];
                 std::cout << " " << result.first[i];
             }
@@ -196,7 +203,7 @@ namespace PEA {
         return;
     }
 
-// Funkcja do wczytywania macierzy odległości z pliku
+    // Funkcja do wczytywania macierzy odległości z pliku
     bool TSP::readSourceFile() {
         this->sourceFile.open(sourceDirectory + this->sourceFileName);
         if (!this->sourceFile.is_open()) {
@@ -228,20 +235,29 @@ namespace PEA {
         return true;
     }
 
-
-
-// Algorytm Symulowanego Wyzarzania dla problemu TSP
-    pair<std::vector<int>, int> TSP::SimulatedAnnealing() {
+    // Algorytm Symulowanego Wyzarzania dla problemu TSP
+    std::pair<std::vector<int>, int> TSP::SimulatedAnnealing() {
         int n = this->sourceMatrix.size();
 
-
-
-
-
-
-        pair<std::vector<int>, int> result;
+        std::pair<std::vector<int>, int> result;
         result.first = this->finalPath;
         result.second = this->finalCost;
         return result;
+    }
+
+    /**
+     * @brief Ocena długości trasy
+     * @param route
+     * @param distanceMatrix
+     * @return double
+     */
+    double evaluateRoute(const std::vector<int>& route, const std::vector<std::vector<int>>& distanceMatrix) {
+        double distance = 0.0;
+        for (size_t i = 0; i < route.size() - 1; ++i) {
+            distance += distanceMatrix[route[i]][route[i + 1]];
+        }
+        // Dodaj odległość powrotną do pierwszego miasta
+        distance += distanceMatrix[route.back()][route.front()];
+        return distance;
     }
 } // PEA

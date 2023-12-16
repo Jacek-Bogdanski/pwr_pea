@@ -10,9 +10,16 @@
 #include <sstream>
 #include <chrono>
 #include <iomanip>
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
 
-#ifndef PEA_2_TSP_H
-#define PEA_2_TSP_H
+#ifndef PEA_3_TSP_H
+#define PEA_3_TSP_H
 
 namespace PEA {
 
@@ -31,7 +38,7 @@ namespace PEA {
 
         bool readSourceFile();
 
-        pair<vector<int>, int> SimulatedAnnealing();
+        std::pair<std::vector<int>, int> SimulatedAnnealing();
 
         int countConfigLines();
 
@@ -42,17 +49,25 @@ namespace PEA {
         std::string outputFileName = "output.txt";
         std::string sourceFileName;
 
-        vector<vector<int>> sourceMatrix;
-        vector<bool> visited;
-        vector<int> finalPath;
+        std::vector<std::vector<int>> sourceMatrix;
+        std::vector<bool> visited;
+        std::vector<int> finalPath;
         int finalCost;
 
-        ifstream configFile;
-        ofstream outputFile;
-        ifstream sourceFile;
+        std::ifstream configFile;
+        std::ofstream outputFile;
+        std::ifstream sourceFile;
+
+        /**
+         * @brief Ocena długości trasy
+         * @param route
+         * @param distanceMatrix
+         * @return double
+         */
+        double evaluateRoute(const std::vector<int>& route, const std::vector<std::vector<int>>& distanceMatrix);
     };
 
 
 } // PEA
 
-#endif //PEA_2_TSP_H
+#endif //PEA_3_TSP_H

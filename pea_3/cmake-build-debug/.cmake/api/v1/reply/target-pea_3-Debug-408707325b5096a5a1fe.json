@@ -113,12 +113,12 @@
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
-			"path" : "TSP.cpp",
+			"path" : "classes/TSP.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
-			"path" : "TSP.h",
+			"path" : "classes/TSP.h",
 			"sourceGroupIndex" : 1
 		}
 	],
