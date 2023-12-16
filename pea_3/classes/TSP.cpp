@@ -48,7 +48,7 @@ namespace PEA {
         }
 
         this->setOutputFileName();
-        this->outputFile.open(outputFileName, ios::trunc);
+        this->outputFile.open(outputFileName, std::ios::trunc);
     }
 
 
@@ -62,7 +62,7 @@ namespace PEA {
             return -1;
         }
         this->configFile.clear();
-        this->configFile.seekg(0, ios::beg);
+        this->configFile.seekg(0, std::ios::beg);
 
         int count = 0;
         std::string line;
@@ -87,12 +87,12 @@ namespace PEA {
         }
 
         this->configFile.clear();
-        this->configFile.seekg(0, ios::beg);
+        this->configFile.seekg(0, std::ios::beg);
         std::string line;
 
         while (getline(this->configFile, line)) {
-            istringstream iss(line);
-            vector<string> tokens;
+            std::istringstream iss(line);
+            vector<std::string> tokens;
             std::string token;
 
             while (iss >> token) {
@@ -118,7 +118,7 @@ namespace PEA {
         }
 
         this->configFile.clear();
-        this->configFile.seekg(0, ios::beg);
+        this->configFile.seekg(0, std::ios::beg);
         std::string line;
 
         while (getline(this->configFile, line)) {
@@ -129,8 +129,8 @@ namespace PEA {
     }
 
     void TSP::handleConfigLine(std::string line) {
-        istringstream iss(line);
-        vector<string> tokens;
+        std::istringstream iss(line);
+        vector<std::string> tokens;
         std::string token;
 
         while (iss >> token) {
@@ -145,8 +145,8 @@ namespace PEA {
         int repeatCount, expectedLength;
         vector<int> values;
 
-        istringstream(tokens[1]) >> repeatCount;
-        istringstream(tokens[2]) >> expectedLength;
+        std::istringstream(tokens[1]) >> repeatCount;
+        std::istringstream(tokens[2]) >> expectedLength;
 
         // wyswietlenie linii informacyjnej
         this->outputFile << this->sourceFileName << " " << expectedLength << " ";
