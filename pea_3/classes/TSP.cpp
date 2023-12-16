@@ -180,20 +180,20 @@ namespace PEA {
 
                 // Wybór sąsiedniego rozwiązania
                 if (swapType == 0) {
-                    this->outputFile << " (2‒zamiana)";
-                    std::cout << " (2‒zamiana)";
+                    this->outputFile << " (2 zamiana)";
+                    std::cout << " (2 zamiana)";
                 } else {
-                   this->outputFile << " (3‒zamiana)";
-                   std::cout << " (3‒zamiana)";
+                   this->outputFile << " (3 zamiana)";
+                   std::cout << " (3 zamiana)";
                 }
 
                 // Chłodzenie geometryczne / logarytmiczne
                 if (coolType == 0) {
-                    this->outputFile << " (chłodzenie geometryczne)";
-                    std::cout << " (chłodzenie geometryczne)";
+                    this->outputFile << " (chlodzenie geometryczne)";
+                    std::cout << " (chlodzenie geometryczne)";
                 } else {
-                    this->outputFile << " (chłodzenie logarytmiczne)";
-                    std::cout << " (chłodzenie logarytmiczne)";
+                    this->outputFile << " (chlodzenie logarytmiczne)";
+                    std::cout << " (chlodzenie logarytmiczne)";
                 }
 
                 this->outputFile << std::endl;
