@@ -28,7 +28,7 @@ namespace PEA {
         this->initFiles();
     }
 
-
+    
     TSP::~TSP() {
         // zamknij pliki
         configFile.close();
@@ -172,11 +172,16 @@ namespace PEA {
         }
 
         for (int i = 1; i <= repeatCount; i++) {
+            // Parametry algorytmu
+            double initialTemperature = 1000.0;
+            double coolingRate = 0.95; // geometryczny schemat chłodzenia
+            int epochs = 10000;
+
             // Start pomiaru czasu
             auto start_time = std::chrono::high_resolution_clock::now();
 
-            // Algorytm
-            std::pair<std::vector<int>, int> result = this->SimulatedAnnealing();
+            // Wywołanie algorytmu Symulowanego Wyżarzania
+            std::pair<std::vector<int>, int> result = this->SimulatedAnnealing(this->sourceMatrix, initialTemperature, coolingRate, epochs);
 
             // Wynik pomiaru czasu
             auto end_time = std::chrono::high_resolution_clock::now();
@@ -236,14 +241,52 @@ namespace PEA {
     }
 
     // Algorytm Symulowanego Wyzarzania dla problemu TSP
-    std::pair<std::vector<int>, int> TSP::SimulatedAnnealing() {
+    std::pair<std::vector<int>, int> TSP::SimulatedAnnealing(const vector<vector<int>>& distanceMatrix, double initialTemperature, double coolingRate, int epochs) {
         int n = this->sourceMatrix.size();
 
+        int n = distanceMatrix.size();
+        vector<int> currentSolution = generateRandomRoute(n);
+        vector<int> bestSolution = currentSolution;
+        double bestCost = evaluateRoute(bestSolution, distanceMatrix);
+
+        double currentTemperature = initialTemperature;
+
+        // Pętla główna
+        for (int epoch = 0; epoch < epochs; ++epoch) {
+            // Generacja sąsiada
+            vector<int> neighborSolution = currentSolution;
+            int cityIndex1 = rand() % (n - 1) + 1; // Exclude the starting city
+            int cityIndex2 = rand() % (n - 1) + 1;
+            swapCities(neighborSolution, cityIndex1, cityIndex2);
+
+            // Obliczenie długości trasy
+            double currentCost = evaluateRoute(currentSolution, distanceMatrix);
+            double neighborCost = evaluateRoute(neighborSolution, distanceMatrix);
+
+            // Prawdopodobieństwo akceptacji
+            double acceptanceProbability = exp((currentCost - neighborCost) / currentTemperature);
+
+            // Akceptacja gorszego rozwiązania
+            if (acceptanceProbability > (rand() / (RAND_MAX + 1.0))) {
+                currentSolution = neighborSolution;
+            }
+
+            // Aktualizacja najlepszego rozwiązania
+            if (currentCost < evaluateRoute(bestSolution, distanceMatrix)) {
+                bestSolution = currentSolution;
+                bestCost = evaluateRoute(bestSolution, distanceMatrix);
+            }
+
+            // Chłodzenie - geometryczny schemat
+            currentTemperature *= coolingRate;
+        }
+
         std::pair<std::vector<int>, int> result;
-        result.first = this->finalPath;
-        result.second = this->finalCost;
+        result.first = bestSolution;
+        result.second = bestCost;
         return result;
     }
+
 
     /**
      * @brief Ocena długości trasy
@@ -260,4 +303,28 @@ namespace PEA {
         distance += distanceMatrix[route.back()][route.front()];
         return distance;
     }
+
+
+    /**
+     * @brief Generowanie losowej trasy
+     * @return Losowa trasa
+     */
+    std::vector<int> generateRandomRoute(int n) {
+        std::vector<int> route(n);
+        for (int i = 0; i < n; ++i) {
+            route[i] = i;
+        }
+        random_shuffle(route.begin() + 1, route.end()); // Omit the first city (assumed starting city)
+        return route;
+    }
+
+
+    /**
+     * @brief Zamiana miast w trasie
+     */
+    void swapCities(vector<int>& route, int index1, int index2) {
+        swap(route[index1], route[index2]);
+    }
+
+    
 } // PEA
