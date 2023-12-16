@@ -17,6 +17,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
+#include <random>
 
 #include "TSP.h"
 
@@ -156,7 +157,7 @@ namespace PEA {
         std::istringstream(tokens[2]) >> expectedLength;
 
         // wyswietlenie linii informacyjnej
-        this->outputFile << this->sourceFileName << " " << expectedLength << " ";
+        this->outputFile << this->sourceFileName << ";" << expectedLength << ";";
         std::cout << this->sourceFileName << " " << expectedLength << " ";
 
         for (size_t i = 3; i < tokens.size(); i++) {
@@ -187,19 +188,19 @@ namespace PEA {
             auto end_time = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
             long double miliseconds = duration.count() / 1000.0;
-            this->outputFile << std::fixed << std::setprecision(4) << miliseconds << " " << result.second << " [";
+            this->outputFile << std::fixed << std::setprecision(4) << miliseconds << ";" << result.second << ";[";
             std::cout << std::fixed << std::setprecision(4) << miliseconds << " " << result.second << " [";
 
             // Wyświetl najlepszą trasę i jej koszt
             this->outputFile << result.first[0];
             std::cout << result.first[0];
-            for (int i = 1; i <= this->sourceMatrix.size(); i++) {
+            for (int i = 1; i < this->sourceMatrix.size(); i++) {
                 this->outputFile << " " << result.first[i];
                 std::cout << " " << result.first[i];
             }
 
             // dopisz nawias koncowy
-            this->outputFile << "]" << std::endl;
+            this->outputFile << ", 0]" << std::endl;
             std::cout << "]" << std::endl;
         }
         this->outputFile << std::endl;
@@ -241,12 +242,10 @@ namespace PEA {
     }
 
     // Algorytm Symulowanego Wyzarzania dla problemu TSP
-    std::pair<std::vector<int>, int> TSP::SimulatedAnnealing(const vector<vector<int>>& distanceMatrix, double initialTemperature, double coolingRate, int epochs) {
-        int n = this->sourceMatrix.size();
-
+    std::pair<std::vector<int>, int> TSP::SimulatedAnnealing(const std::vector<std::vector<int>>& distanceMatrix, double initialTemperature, double coolingRate, int epochs) {
         int n = distanceMatrix.size();
-        vector<int> currentSolution = generateRandomRoute(n);
-        vector<int> bestSolution = currentSolution;
+        std::vector<int> currentSolution = generateRandomRoute(n);
+        std::vector<int> bestSolution = currentSolution;
         double bestCost = evaluateRoute(bestSolution, distanceMatrix);
 
         double currentTemperature = initialTemperature;
@@ -254,7 +253,7 @@ namespace PEA {
         // Pętla główna
         for (int epoch = 0; epoch < epochs; ++epoch) {
             // Generacja sąsiada
-            vector<int> neighborSolution = currentSolution;
+            std::vector<int> neighborSolution = currentSolution;
             int cityIndex1 = rand() % (n - 1) + 1; // Exclude the starting city
             int cityIndex2 = rand() % (n - 1) + 1;
             swapCities(neighborSolution, cityIndex1, cityIndex2);
@@ -294,7 +293,7 @@ namespace PEA {
      * @param distanceMatrix
      * @return double
      */
-    double evaluateRoute(const std::vector<int>& route, const std::vector<std::vector<int>>& distanceMatrix) {
+    double TSP::evaluateRoute(const std::vector<int>& route, const std::vector<std::vector<int>>& distanceMatrix) {
         double distance = 0.0;
         for (size_t i = 0; i < route.size() - 1; ++i) {
             distance += distanceMatrix[route[i]][route[i + 1]];
@@ -309,12 +308,16 @@ namespace PEA {
      * @brief Generowanie losowej trasy
      * @return Losowa trasa
      */
-    std::vector<int> generateRandomRoute(int n) {
+    std::vector<int> TSP::generateRandomRoute(int n) {
         std::vector<int> route(n);
-        for (int i = 0; i < n; ++i) {
+        for (int i = 0; i < n; i++) {
             route[i] = i;
         }
-        random_shuffle(route.begin() + 1, route.end()); // Omit the first city (assumed starting city)
+
+        for (int i = 0; i <= n/2; i++) {
+            swapCities(route,rand()%(n-1)+1,rand()%(n-1)+1);
+        }
+
         return route;
     }
 
@@ -322,8 +325,8 @@ namespace PEA {
     /**
      * @brief Zamiana miast w trasie
      */
-    void swapCities(vector<int>& route, int index1, int index2) {
-        swap(route[index1], route[index2]);
+    void TSP::swapCities(std::vector<int>& route, int index1, int index2) {
+        std::swap(route[index1], route[index2]);
     }
 
     

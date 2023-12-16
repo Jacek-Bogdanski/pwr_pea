@@ -17,6 +17,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
+#include <random>
 
 #ifndef PEA_3_TSP_H
 #define PEA_3_TSP_H
@@ -54,7 +55,7 @@ namespace PEA {
 
         void setOutputFileName();
 
-        std::pair<std::vector<int>, int> SimulatedAnnealing();
+        std::pair<std::vector<int>, int> SimulatedAnnealing(const std::vector<std::vector<int>>& distanceMatrix, double initialTemperature, double coolingRate, int epochs);
 
         /**
          * @brief Ocena długości trasy
@@ -73,7 +74,7 @@ namespace PEA {
         /**
          * @brief Zamiana miast w trasie
          */
-        void swapCities(vector<int>& route, int index1, int index2)
+        void swapCities(std::vector<int>& route, int index1, int index2);
     };
 
 
