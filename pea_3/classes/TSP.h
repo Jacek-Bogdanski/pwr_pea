@@ -20,14 +20,14 @@ namespace PEA {
     public:
         void handleConfigFile();
 
-        TSP(string configFileName);
+        TSP(std::string configFileName);
 
         ~TSP();
 
     private:
         void initFiles();
 
-        void handleConfigLine(string line);
+        void handleConfigLine(std::string line);
 
         bool readSourceFile();
 
@@ -37,10 +37,10 @@ namespace PEA {
 
         void setOutputFileName();
 
-        string configFileName;
-        string sourceDirectory = "source/";
-        string outputFileName = "output.txt";
-        string sourceFileName;
+        std::string configFileName;
+        std::string sourceDirectory = "source/";
+        std::string outputFileName = "output.txt";
+        std::string sourceFileName;
 
         vector<vector<int>> sourceMatrix;
         vector<bool> visited;

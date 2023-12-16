@@ -65,10 +65,10 @@ namespace PEA {
         this->configFile.seekg(0, ios::beg);
 
         int count = 0;
-        string line;
+        std::string line;
         while (getline(this->configFile, line)) {
             // Check if the line has any non-whitespace characters.
-            if (line.find_first_not_of(" \t") != string::npos) {
+            if (line.find_first_not_of(" \t") != std::string::npos) {
                 count++;
             }
         }
@@ -79,7 +79,7 @@ namespace PEA {
 /**
  * @brief Funkcja sprawdza plik konfiguracyjny, ustawia nazwe pliku wynikowego
  *
- * @return string
+ * @return std::string
  */
     void TSP::setOutputFileName() {
         if (!this->configFile.is_open()) {
@@ -88,12 +88,12 @@ namespace PEA {
 
         this->configFile.clear();
         this->configFile.seekg(0, ios::beg);
-        string line;
+        std::string line;
 
         while (getline(this->configFile, line)) {
             istringstream iss(line);
             vector<string> tokens;
-            string token;
+            std::string token;
 
             while (iss >> token) {
                 tokens.push_back(token);
@@ -119,7 +119,7 @@ namespace PEA {
 
         this->configFile.clear();
         this->configFile.seekg(0, ios::beg);
-        string line;
+        std::string line;
 
         while (getline(this->configFile, line)) {
             this->handleConfigLine(line);
@@ -131,7 +131,7 @@ namespace PEA {
     void TSP::handleConfigLine(string line) {
         istringstream iss(line);
         vector<string> tokens;
-        string token;
+        std::string token;
 
         while (iss >> token) {
             tokens.push_back(token);
