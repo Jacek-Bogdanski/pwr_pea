@@ -201,7 +201,6 @@ namespace PEA {
 
                 for (int i = 1; i <= repeatCount; i++) {
                     // Parametry algorytmu
-                    double initialTemperature = 1000.0;
                     double alpha = 0.98; // współczynnik chłodzenia
 
                     // Start pomiaru czasu
@@ -282,6 +281,9 @@ namespace PEA {
         double acceptanceProbability = 0.98;
         double initialTemperature = calculateInitialTemperature(bestCost, acceptanceProbability);
         double currentTemperature = initialTemperature;
+
+        this->outputFile << "T_init = " << initialTemperature << ";";
+        std::cout << "T_init = " << initialTemperature << ";";
 
         // Pętla główna
         for (int epoch = 0; epoch >= 0; epoch++) {
