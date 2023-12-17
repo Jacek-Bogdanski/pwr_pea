@@ -368,7 +368,10 @@ namespace PEA {
      */
     void TSP::swap2Cities(std::vector<int>& route) {
         int index1 = rand() % (n - 1) + 1;
+
         int index2 = rand() % (n - 1) + 1;
+        while(index2 == index1) index2 = rand() % (n - 1) + 1;
+
         std::swap(route[index1], route[index2]);
     }
 
@@ -377,9 +380,15 @@ namespace PEA {
      */
     void TSP::swap3Cities(std::vector<int>& route) {
         int index1 = rand() % (n - 1) + 1;
+
         int index2 = rand() % (n - 1) + 1;
+        while(index2 == index1) index2 = rand() % (n - 1) + 1;
+
         int index3 = rand() % (n - 1) + 1;
+        while(index3 == index1 || index3 == index2) index3 = rand() % (n - 1) + 1;
+          
         std::swap(route[index1], route[index2]);
+        std::swap(route[index2], route[index3]);
     }
 
     /**
