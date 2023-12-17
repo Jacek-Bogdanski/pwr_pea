@@ -16,7 +16,7 @@
 		},
 		{
 			"isGenerated" : true,
-			"path" : "cmake-build-debug/CMakeFiles/3.25.2/CMakeSystem.cmake"
+			"path" : "cmake-build-release/CMakeFiles/3.25.2/CMakeSystem.cmake"
 		},
 		{
 			"isCMake" : true,
@@ -270,7 +270,7 @@
 		},
 		{
 			"isGenerated" : true,
-			"path" : "cmake-build-debug/CMakeFiles/3.25.2/CMakeCCompiler.cmake"
+			"path" : "cmake-build-release/CMakeFiles/3.25.2/CMakeCCompiler.cmake"
 		},
 		{
 			"isCMake" : true,
@@ -514,7 +514,7 @@
 		},
 		{
 			"isGenerated" : true,
-			"path" : "cmake-build-debug/CMakeFiles/3.25.2/CMakeCXXCompiler.cmake"
+			"path" : "cmake-build-release/CMakeFiles/3.25.2/CMakeCXXCompiler.cmake"
 		},
 		{
 			"isCMake" : true,
@@ -588,7 +588,7 @@
 		},
 		{
 			"isGenerated" : true,
-			"path" : "cmake-build-debug/CMakeFiles/3.25.2/CMakeRCCompiler.cmake"
+			"path" : "cmake-build-release/CMakeFiles/3.25.2/CMakeRCCompiler.cmake"
 		},
 		{
 			"isCMake" : true,
@@ -667,7 +667,7 @@
 		},
 		{
 			"isGenerated" : true,
-			"path" : "cmake-build-debug/CMakeFiles/3.25.2/CMakeCCompiler.cmake"
+			"path" : "cmake-build-release/CMakeFiles/3.25.2/CMakeCCompiler.cmake"
 		},
 		{
 			"isCMake" : true,
@@ -766,7 +766,7 @@
 		},
 		{
 			"isGenerated" : true,
-			"path" : "cmake-build-debug/CMakeFiles/3.25.2/CMakeCXXCompiler.cmake"
+			"path" : "cmake-build-release/CMakeFiles/3.25.2/CMakeCXXCompiler.cmake"
 		},
 		{
 			"isCMake" : true,
@@ -777,7 +777,7 @@
 	"kind" : "cmakeFiles",
 	"paths" : 
 	{
-		"build" : "C:/Users/busin/CLionProjects/pwr_pea/pea_3/cmake-build-debug",
+		"build" : "C:/Users/busin/CLionProjects/pwr_pea/pea_3/cmake-build-release",
 		"source" : "C:/Users/busin/CLionProjects/pwr_pea/pea_3"
 	},
 	"version" : 

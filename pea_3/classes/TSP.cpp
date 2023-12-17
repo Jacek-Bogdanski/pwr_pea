@@ -53,6 +53,8 @@ namespace PEA {
             exit(1);
         }
 
+        outputFile<<"Initial_temp;Epochs;Time[ms];Distance;Path"<<std::endl;
+
         this->configFile.clear();
         this->configFile.seekg(0, std::ios::beg);
         std::string line;
@@ -278,15 +280,15 @@ namespace PEA {
         double bestCost = evaluateRoute(bestSolution, distanceMatrix);
         int noBetter = 0;
 
-        double acceptanceProbability = 0.98;
-        double initialTemperature = calculateInitialTemperature(bestCost, acceptanceProbability);
+        double initialTemperature = calculateInitialTemperature(bestCost, alpha);
         double currentTemperature = initialTemperature;
 
-        this->outputFile << "T_init = " << initialTemperature << ";";
-        std::cout << "T_init = " << initialTemperature << ";";
+        this->outputFile << initialTemperature << ";";
+        std::cout << initialTemperature << ";";
 
         // Pętla główna
-        for (int epoch = 0; epoch >= 0; epoch++) {
+        int epoch = 0;
+        for (epoch = 0; epoch >= 0; epoch++) {
 
             // Generacja sąsiedniej trasy
             std::vector<int> neighborSolution = currentSolution;
@@ -317,7 +319,7 @@ namespace PEA {
                 noBetter = 0;
             } else {
                 noBetter++;
-                if (noBetter > 100) {
+                if (noBetter > 1000) {
                     break;
                 }
             }
@@ -329,6 +331,9 @@ namespace PEA {
                 currentTemperature /= (1 + log10(alpha));
             }
         }
+
+        this->outputFile << epoch << ";";
+        std::cout << epoch << ";";
 
         std::pair<std::vector<int>, int> result;
         result.first = bestSolution;
@@ -399,8 +404,8 @@ namespace PEA {
     /**
      * @brief Obliczenie temperatury początkowej
      */
-    double TSP::calculateInitialTemperature(double initialDistance, double acceptanceProbability) {
-        return -initialDistance / log(acceptanceProbability);
+    double TSP::calculateInitialTemperature(double initialDistance, double k) {
+        return round(-initialDistance / log10(k));
     }
     
 } // PEA
