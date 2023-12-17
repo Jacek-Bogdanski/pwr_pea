@@ -1266,42 +1266,6 @@
 			"value" : "TRUE"
 		},
 		{
-			"name" : "pea_2_BINARY_DIR",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Value Computed by CMake"
-				}
-			],
-			"type" : "STATIC",
-			"value" : "C:/Users/busin/CLionProjects/pwr_pea/pea_3/cmake-build-debug"
-		},
-		{
-			"name" : "pea_2_IS_TOP_LEVEL",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Value Computed by CMake"
-				}
-			],
-			"type" : "STATIC",
-			"value" : "ON"
-		},
-		{
-			"name" : "pea_2_SOURCE_DIR",
-			"properties" : 
-			[
-				{
-					"name" : "HELPSTRING",
-					"value" : "Value Computed by CMake"
-				}
-			],
-			"type" : "STATIC",
-			"value" : "C:/Users/busin/CLionProjects/pwr_pea/pea_3"
-		},
-		{
 			"name" : "pea_3_BINARY_DIR",
 			"properties" : 
 			[
