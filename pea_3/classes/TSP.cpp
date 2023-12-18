@@ -283,13 +283,12 @@ namespace PEA {
         double initialTemperature = calculateInitialTemperature(bestCost, alpha);
         double currentTemperature = initialTemperature;
 
-        this->outputFile << initialTemperature << ";";
-        std::cout << initialTemperature << ";";
+        std::cout << "0";
 
         // Pętla główna
         int epoch = 0;
         for (epoch = 0; epoch >= 0; epoch++) {
-
+            std::cout << "\r"<<epoch;
             // Generacja sąsiedniej trasy
             std::vector<int> neighborSolution = currentSolution;
             
@@ -331,6 +330,11 @@ namespace PEA {
                 currentTemperature /= (1 + log10(alpha));
             }
         }
+
+        std::cout << "\r";
+
+        this->outputFile << initialTemperature << ";";
+        std::cout << initialTemperature << ";";
 
         this->outputFile << epoch << ";";
         std::cout << epoch << ";";
