@@ -21,6 +21,14 @@
 
 #include "TSP.h"
 
+int getRandomInt(int minValue, int maxValue) {
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<int> distribution(minValue, maxValue);
+
+    return distribution(gen);
+}
+
 namespace PEA {
 
     /**
@@ -159,7 +167,6 @@ namespace PEA {
 
         this->sourceFileName = tokens[0];
         int repeatCount, expectedLength;
-        std::vector<int> values;
 
         std::istringstream(tokens[1]) >> repeatCount;
         std::istringstream(tokens[2]) >> expectedLength;
@@ -198,6 +205,9 @@ namespace PEA {
                     std::cout << " (chlodzenie logarytmiczne)";
                 }
 
+                this->outputFile << " (n="<<this->sourceMatrix.size()<<")";
+                std::cout << " (n="<<this->sourceMatrix.size()<<")";
+
                 this->outputFile << std::endl;
                 std::cout << std::endl;
 
@@ -215,20 +225,10 @@ namespace PEA {
                     auto end_time = std::chrono::high_resolution_clock::now();
                     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
                     long double miliseconds = duration.count() / 1000.0;
-                    this->outputFile << std::fixed << std::setprecision(4) << miliseconds << ";" << result.second << ";[";
-                    std::cout << std::fixed << std::setprecision(4) << miliseconds << " " << result.second << " [";
+                    this->outputFile << std::fixed << std::setprecision(4) << miliseconds << ";" << result.second << std::endl;
+                    std::cout << std::fixed << std::setprecision(4) << miliseconds << " " << result.second << std::endl;
 
-                    // Wyświetl najlepszą trasę i jej koszt
-                    this->outputFile << result.first[0];
-                    std::cout << result.first[0];
-                    for (int i = 1; i < this->sourceMatrix.size(); i++) {
-                        this->outputFile << " " << result.first[i];
-                        std::cout << " " << result.first[i];
-                    }
 
-                    // dopisz nawias koncowy
-                    this->outputFile << ", 0]" << std::endl;
-                    std::cout << ", 0]" << std::endl;
                 }
                 this->outputFile << std::endl;
                 std::cout << std::endl;
@@ -258,9 +258,11 @@ namespace PEA {
         // Dane z pliku
         std::vector<std::vector<int>> matrix(n, std::vector<int>(n, 0));
 
+        double tmp = 0;
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                this->sourceFile >> matrix[i][j];
+                this->sourceFile >> tmp;
+                matrix[i][j] = (int)tmp;
             }
         }
 
@@ -282,8 +284,7 @@ namespace PEA {
 
         double initialTemperature = calculateInitialTemperature(bestCost, alpha);
         double currentTemperature = initialTemperature;
-
-        // std::cout << "0";
+//         std::cout << "0";
 
         int nMax,nCurrent=0;
         if (swapType == 0) {
@@ -313,19 +314,19 @@ namespace PEA {
             // Prawdopodobieństwo akceptacji
             double acceptanceProbability = exp((currentCost - neighborCost) / currentTemperature);
 
-            // Akceptacja gorszego rozwiązania
-            if (acceptanceProbability > (rand() / (RAND_MAX + 1.0))) {
+            // Akceptacja lepszego lub gorszego rozwiązania
+            if (neighborCost < currentCost || (acceptanceProbability > (rand() / (RAND_MAX + 1.0)))) {
                 currentSolution = neighborSolution;
             }
 
             // Aktualizacja najlepszego rozwiązania
-            if (currentCost < evaluateRoute(bestSolution, distanceMatrix)) {
+            if (currentCost < bestCost) {
                 bestSolution = currentSolution;
-                bestCost = evaluateRoute(bestSolution, distanceMatrix);
+                bestCost = currentCost;
                 noBetter = 0;
             } else {
                 noBetter++;
-                if (noBetter > 100) {
+                if (noBetter > 10000) {
                     break;
                 }
             }
@@ -379,7 +380,7 @@ namespace PEA {
             route[i] = i;
         }
 
-        for (int i = 0; i <= n/2; i++) {
+        for (int i = 0; i < n; i++) {
             swap2Cities(route);
         }
 
@@ -390,11 +391,12 @@ namespace PEA {
      * @brief Zamiana 2 miast w trasie
      */
     void TSP::swap2Cities(std::vector<int>& route) {
-        int n = route.size();
-        int index1 = rand() % (n - 1) + 1;
 
-        int index2 = rand() % (n - 1) + 1;
-        while(index2 == index1) index2 = rand() % (n - 1) + 1;
+        int n = route.size();
+        int index1 = getRandomInt(1, n-1);
+
+        int index2 = getRandomInt(1, n-1);
+        while(index2 == index1) index2 = getRandomInt(1, n-1);
 
         std::swap(route[index1], route[index2]);
     }
@@ -404,13 +406,13 @@ namespace PEA {
      */
     void TSP::swap3Cities(std::vector<int>& route) {
         int n = route.size();
-        int index1 = rand() % (n - 1) + 1;
+        int index1 = getRandomInt(1, n-1);
 
-        int index2 = rand() % (n - 1) + 1;
-        while(index2 == index1) index2 = rand() % (n - 1) + 1;
+        int index2 = getRandomInt(1, n-1);
+        while(index2 == index1) index2 = getRandomInt(1, n-1);
 
-        int index3 = rand() % (n - 1) + 1;
-        while(index3 == index1 || index3 == index2) index3 = rand() % (n - 1) + 1;
+        int index3 = getRandomInt(1, n-1);
+        while(index3 == index1 || index3 == index2) index3 = getRandomInt(1, n-1);
           
         std::swap(route[index1], route[index2]);
         std::swap(route[index2], route[index3]);
