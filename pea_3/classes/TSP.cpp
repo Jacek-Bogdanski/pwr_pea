@@ -285,10 +285,17 @@ namespace PEA {
 
         std::cout << "0";
 
+        int nMax,n=0;
+        if (swapType == 0) {
+            nMax = symbolNewtona(n,2);
+        } else {
+            nMax = symbolNewtona(n,3);
+        }
+
         // Pętla główna
-        int epoch = 0;
-        for (epoch = 0; epoch >= 0; epoch++) {
-            std::cout << "\r"<<epoch;
+        int nAll = 0;
+        for (nAll = 0; nAll >= 0; nAll++) {
+            std::cout << "\r"<<n<<" ("<<nAll<<")";
             // Generacja sąsiedniej trasy
             std::vector<int> neighborSolution = currentSolution;
             
@@ -318,16 +325,20 @@ namespace PEA {
                 noBetter = 0;
             } else {
                 noBetter++;
-                if (noBetter > 1000) {
+                if (noBetter > 100) {
                     break;
                 }
             }
 
-            // Chłodzenie geometryczne / logarytmiczne
-            if (coolType == 0) {
-                currentTemperature *= alpha;
-            } else {
-                currentTemperature /= (1 + log10(alpha));
+            if(++n > nMax){
+                // Chłodzenie geometryczne / logarytmiczne
+                if (coolType == 0) {
+                    currentTemperature *= alpha;
+                } else {
+                    currentTemperature /= (1 + log10(alpha));
+                }
+
+                n = 0;
             }
         }
 
@@ -410,6 +421,16 @@ namespace PEA {
      */
     double TSP::calculateInitialTemperature(double initialDistance, double k) {
         return round(-initialDistance / log10(k));
+    }
+
+    /**
+     * @brief Obliczenie symbolu newtona
+     */
+    unsigned long long int symbolNewtona(int n, int k) {
+        if (k < 0 || k > n) {
+            return 0; 
+        }
+        return tgamma(n + 1) / (tgamma(k + 1) * tgamma(n - k + 1));
     }
     
 } // PEA

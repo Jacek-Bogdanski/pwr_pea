@@ -114,6 +114,10 @@ namespace PEA {
         */
         double calculateInitialTemperature(double initialDistance, double acceptanceProbability);
 
+        /**
+        * @brief Obliczenie symbolu newtona
+        */
+        unsigned long long int symbolNewtona(int n, int k);
     };
 
 
