@@ -283,9 +283,9 @@ namespace PEA {
         double initialTemperature = calculateInitialTemperature(bestCost, alpha);
         double currentTemperature = initialTemperature;
 
-        std::cout << "0";
+        // std::cout << "0";
 
-        int nMax,n=0;
+        int nMax,nCurrent=0;
         if (swapType == 0) {
             nMax = symbolNewtona(n,2);
         } else {
@@ -295,7 +295,7 @@ namespace PEA {
         // Pętla główna
         int nAll = 0;
         for (nAll = 0; nAll >= 0; nAll++) {
-            std::cout << "\r"<<n<<" ("<<nAll<<")";
+            //std::cout << "\r"<<nCurrent<<" ("<<nAll<<")";
             // Generacja sąsiedniej trasy
             std::vector<int> neighborSolution = currentSolution;
             
@@ -330,7 +330,7 @@ namespace PEA {
                 }
             }
 
-            if(++n > nMax){
+            if(++nCurrent > nMax){
                 // Chłodzenie geometryczne / logarytmiczne
                 if (coolType == 0) {
                     currentTemperature *= alpha;
@@ -338,17 +338,17 @@ namespace PEA {
                     currentTemperature /= (1 + log10(alpha));
                 }
 
-                n = 0;
+                nCurrent = 0;
             }
         }
 
-        std::cout << "\r";
+        //std::cout << "\r";
 
         this->outputFile << initialTemperature << ";";
         std::cout << initialTemperature << ";";
 
-        this->outputFile << epoch << ";";
-        std::cout << epoch << ";";
+        this->outputFile << nAll << ";";
+        std::cout << nAll << ";";
 
         std::pair<std::vector<int>, int> result;
         result.first = bestSolution;
@@ -426,7 +426,7 @@ namespace PEA {
     /**
      * @brief Obliczenie symbolu newtona
      */
-    unsigned long long int symbolNewtona(int n, int k) {
+    int TSP::symbolNewtona(int n, int k) {
         if (k < 0 || k > n) {
             return 0; 
         }

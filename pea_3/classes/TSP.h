@@ -117,7 +117,7 @@ namespace PEA {
         /**
         * @brief Obliczenie symbolu newtona
         */
-        unsigned long long int symbolNewtona(int n, int k);
+        int symbolNewtona(int n, int k);
     };
 
 
