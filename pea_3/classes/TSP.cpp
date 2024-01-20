@@ -61,7 +61,7 @@ namespace PEA {
             exit(1);
         }
 
-        outputFile<<"Initial_temp;Epochs;Time[ms];Distance;Path"<<std::endl;
+        outputFile<<"Time[ms];Distance;Path"<<std::endl;
 
         this->configFile.clear();
         this->configFile.seekg(0, std::ios::beg);
@@ -225,10 +225,19 @@ namespace PEA {
                     auto end_time = std::chrono::high_resolution_clock::now();
                     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
                     long double miliseconds = duration.count() / 1000.0;
-                    this->outputFile << std::fixed << std::setprecision(4) << miliseconds << ";" << result.second << std::endl;
-                    std::cout << std::fixed << std::setprecision(4) << miliseconds << " " << result.second << std::endl;
+                    this->outputFile << std::fixed << std::setprecision(4) << miliseconds << ";" << result.second << ";[";
+                    std::cout << std::fixed << std::setprecision(4) << miliseconds << " " << result.second << " [";
 
-
+                    // Wyświetl najlepszą trasę i jej koszt
+                    this->outputFile << result.first[0];
+                    std::cout << result.first[0];
+                    for (int i = 1; i < this->sourceMatrix.size(); i++) {
+                        this->outputFile << " " << result.first[i];
+                        std::cout << " " << result.first[i];
+                    }
+                    // dopisz nawias koncowy
+                    this->outputFile << ", 0]" << std::endl;
+                    std::cout << ", 0]" << std::endl;
                 }
                 this->outputFile << std::endl;
                 std::cout << std::endl;
@@ -284,7 +293,6 @@ namespace PEA {
 
         double initialTemperature = calculateInitialTemperature(bestCost, alpha);
         double currentTemperature = initialTemperature;
-//         std::cout << "0";
 
         int nMax,nCurrent=0;
         if (swapType == 0) {
@@ -296,7 +304,6 @@ namespace PEA {
         // Pętla główna
         int nAll = 0;
         for (nAll = 0; nAll >= 0; nAll++) {
-            //std::cout << "\r"<<nCurrent<<" ("<<nAll<<")";
             // Generacja sąsiedniej trasy
             std::vector<int> neighborSolution = currentSolution;
             
@@ -342,14 +349,6 @@ namespace PEA {
                 nCurrent = 0;
             }
         }
-
-        //std::cout << "\r";
-
-        this->outputFile << initialTemperature << ";";
-        std::cout << initialTemperature << ";";
-
-        this->outputFile << nAll << ";";
-        std::cout << nAll << ";";
 
         std::pair<std::vector<int>, int> result;
         result.first = bestSolution;
