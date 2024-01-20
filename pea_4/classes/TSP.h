@@ -86,32 +86,32 @@ namespace PEA {
         /**
         * Algorytm mrówkowy dla problemu TSP
         */
-        std::pair<std::vector<int>, int> TSP::antAlgorithm();
+        std::pair<std::vector<int>, int> antAlgorithm();
 
         /**
         * Obliczenie odległości pomiedzy miastami
         */
-        double TSP::calculateDistance(const City& city1, const City& city2);
+        double calculateDistance(const City& city1, const City& city2);
 
         /**
         * Inicjalizacja feromonów
         */
-        void TSP::initializePheromones(std::vector<std::vector<double>>& pheromones, double initialValue);
+        void initializePheromones(std::vector<std::vector<double>>& pheromones, double initialValue);
 
         /**
         * Ruchy mrówek
         */
-        void TSP::antSteps(const std::vector<City>& cities, std::vector<std::vector<double>>& pheromones, std::vector<int>& tour);
+        void antSteps(const std::vector<City>& cities, std::vector<std::vector<double>>& pheromones, std::vector<int>& tour);
 
         /**
         * Aktualizacja feromonów globalnie po przejściu mrówek
         */
-        void TSP::updatePheromones(std::vector<std::vector<double>>& pheromones, const std::vector<std::vector<double>>& deltaPheromones);
+        void updatePheromones(std::vector<std::vector<double>>& pheromones, const std::vector<std::vector<double>>& deltaPheromones);
 
         /**
         * Pętla powtórzeń iteracji
         */
-        void TSP::runAnts(const std::vector<City>& cities, std::vector<std::vector<double>>& pheromones);
+        void runAnts(const std::vector<City>& cities, std::vector<std::vector<double>>& pheromones);
 
     }
 
