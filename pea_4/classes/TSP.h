@@ -84,11 +84,36 @@ namespace PEA {
         bool readSourceFile();
     
         /**
-        * @brief Obliczenie symbolu newtona
+        * Algorytm mrówkowy dla problemu TSP
         */
-        int symbolNewtona(int n, int k);
-    };
+        std::pair<std::vector<int>, int> TSP::antAlgorithm();
 
+        /**
+        * Obliczenie odległości pomiedzy miastami
+        */
+        double TSP::calculateDistance(const City& city1, const City& city2);
+
+        /**
+        * Inicjalizacja feromonów
+        */
+        void TSP::initializePheromones(std::vector<std::vector<double>>& pheromones, double initialValue);
+
+        /**
+        * Ruchy mrówek
+        */
+        void TSP::antSteps(const std::vector<City>& cities, std::vector<std::vector<double>>& pheromones, std::vector<int>& tour);
+
+        /**
+        * Aktualizacja feromonów globalnie po przejściu mrówek
+        */
+        void TSP::updatePheromones(std::vector<std::vector<double>>& pheromones, const std::vector<std::vector<double>>& deltaPheromones);
+
+        /**
+        * Pętla powtórzeń iteracji
+        */
+        void TSP::runAnts(const std::vector<City>& cities, std::vector<std::vector<double>>& pheromones);
+
+    }
 
 } // PEA
 
