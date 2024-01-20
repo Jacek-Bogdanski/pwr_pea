@@ -24,15 +24,6 @@
 
 namespace PEA {
 
-    const double ALPHA = 1.0;  // Wpływ feromonów
-    const double BETA = 2.0;   // Wpływ widoczności (odległości)
-    const double RHO = 0.5;    // Współczynnik parowania feromonów
-
-
-    // Parametry algorytmu mrówkowego
-    const int numAnts = 10;
-    const int numIterations = 100;
-
     struct City {
         int id;
         double x, y;
@@ -173,7 +164,6 @@ namespace PEA {
         }
 
         this->sourceFileName = tokens[0];
-        int repeatCount, expectedLength;
 
         std::istringstream(tokens[1]) >> repeatCount;
         std::istringstream(tokens[2]) >> expectedLength;
@@ -207,20 +197,25 @@ namespace PEA {
             auto end_time = std::chrono::high_resolution_clock::now();
             auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end_time - start_time);
             long double miliseconds = duration.count() / 1000.0;
-            this->outputFile << std::fixed << std::setprecision(4) << miliseconds << ";" << result.second << ";[";
-            std::cout << std::fixed << std::setprecision(4) << miliseconds << " " << result.second << " [";
+            this->outputFile << std::fixed << std::setprecision(4) << miliseconds << ";";
+            std::cout << std::fixed << std::setprecision(4) << miliseconds << " ";
+
+            // wyswietlenie bledu
+            double error = ((double)result.second - (double)expectedLength)/(double)expectedLength*100.0;
+            this->outputFile<<error<<"%;";
+            std::cout<<error<<"% ";
 
             // Wyświetl najlepszą trasę i jej koszt
-            this->outputFile << result.first[0];
-            std::cout << result.first[0];
+            this->outputFile << result.second << ";["<< result.first[0];
+            std::cout << result.second << " [" << result.first[0];
             for (int i = 1; i < cities.size();
             i++) {
                 this->outputFile << " " << result.first[i];
                 std::cout << " " << result.first[i];
             }
             // dopisz nawias koncowy
-            this->outputFile << ", 0]" << std::endl;
-            std::cout << ", 0]" << std::endl;
+            this->outputFile << " 0]" << std::endl;
+            std::cout << " 0]" << std::endl;
         }
         this->outputFile << std::endl;
         std::cout << std::endl;
@@ -258,9 +253,6 @@ namespace PEA {
      * Algorytm mrówkowy dla problemu TSP
      */
     std::pair<std::vector<int>, int> TSP::antAlgorithm() {
-        std::vector<int> bestSolution;
-        double bestCost;
-
         int numCities = cities.size();
         if(numCities == 0){
             throw std::runtime_error(std::string("Empty city list error"));
@@ -273,7 +265,8 @@ namespace PEA {
             }
         }
 
-        std::vector<std::vector<double>> pheromones(numCities, std::vector<double>(numCities, 1.0));
+        // inicjalizacja feromonow
+        std::vector<std::vector<double>> pheromones(numCities, std::vector<double>(numCities, FEROMON_INITIAL_VALUE));
 
         // Wywołanie algorytmu mrówkowego
         runAnts(cities, pheromones);
@@ -312,18 +305,6 @@ namespace PEA {
         double dx = city1.x - city2.x;
         double dy = city1.y - city2.y;
         return std::sqrt(dx * dx + dy * dy);
-    }
-
-    /**
-     * Inicjalizacja feromonów
-     */
-    void TSP::initializePheromones(std::vector<std::vector<double>> &pheromones, double initialValue) {
-        int numCities = pheromones.size();
-        for (int i = 0; i < numCities; ++i) {
-            for (int j = 0; j < numCities; ++j) {
-                pheromones[i][j] = initialValue;
-            }
-        }
     }
 
     /**

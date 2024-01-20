@@ -32,6 +32,8 @@ namespace PEA {
         const double BETA = 2.0;   // Wpływ widoczności (odległości)
         const double RHO = 0.5;    // Współczynnik parowania feromonów
 
+        const double FEROMON_INITIAL_VALUE = 1.0;    // Wartosc poczatkowa feromo
+
         // Parametry algorytmu mrówkowego
         const int numAnts = 10;
         const int numIterations = 100;
@@ -64,6 +66,9 @@ namespace PEA {
         std::ifstream configFile;
         std::ofstream outputFile;
         std::ifstream sourceFile;
+
+
+        int repeatCount, expectedLength;;
 
         /**
         * @brief Macierz sąsiedztwa
@@ -105,11 +110,6 @@ namespace PEA {
         * Obliczenie odległości pomiedzy miastami
         */
         double calculateDistance(const City &city1, const City &city2);
-
-        /**
-        * Inicjalizacja feromonów
-        */
-        void initializePheromones(std::vector<std::vector<double>> &pheromones, double initialValue);
 
         /**
         * Ruchy mrówek
