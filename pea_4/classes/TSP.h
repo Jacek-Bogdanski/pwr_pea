@@ -24,7 +24,20 @@
 
 namespace PEA {
 
+    struct City;
+
     class TSP {
+
+        const double ALPHA = 1.0;  // Wpływ feromonów
+        const double BETA = 2.0;   // Wpływ widoczności (odległości)
+        const double RHO = 0.5;    // Współczynnik parowania feromonów
+
+        // Parametry algorytmu mrówkowego
+        const int numAnts = 10;
+        const int numIterations = 100;
+
+        // Miasta wczytane z pliku
+        std::vector<City> cities;
 
     public:
         /**
@@ -39,7 +52,7 @@ namespace PEA {
 
         /**
         * @brief Uruchomienie programu
-        */ 
+        */
         void handleConfigFile();
 
     private:
@@ -82,7 +95,7 @@ namespace PEA {
         * Wczytanie macierzy odległości z pliku
         */
         bool readSourceFile();
-    
+
         /**
         * Algorytm mrówkowy dla problemu TSP
         */
@@ -91,29 +104,31 @@ namespace PEA {
         /**
         * Obliczenie odległości pomiedzy miastami
         */
-        double calculateDistance(const City& city1, const City& city2);
+        double calculateDistance(const City &city1, const City &city2);
 
         /**
         * Inicjalizacja feromonów
         */
-        void initializePheromones(std::vector<std::vector<double>>& pheromones, double initialValue);
+        void initializePheromones(std::vector<std::vector<double>> &pheromones, double initialValue);
 
         /**
         * Ruchy mrówek
         */
-        void antSteps(const std::vector<City>& cities, std::vector<std::vector<double>>& pheromones, std::vector<int>& tour);
+        void
+        antSteps(const std::vector<City> &cities, std::vector<std::vector<double>> &pheromones, std::vector<int> &tour);
 
         /**
         * Aktualizacja feromonów globalnie po przejściu mrówek
         */
-        void updatePheromones(std::vector<std::vector<double>>& pheromones, const std::vector<std::vector<double>>& deltaPheromones);
+        void updatePheromones(std::vector<std::vector<double>> &pheromones,
+                              const std::vector<std::vector<double>> &deltaPheromones);
 
         /**
         * Pętla powtórzeń iteracji
         */
-        void runAnts(const std::vector<City>& cities, std::vector<std::vector<double>>& pheromones);
+        void runAnts(const std::vector<City> &cities, std::vector<std::vector<double>> &pheromones);
 
-    }
+    };
 
 } // PEA
 

@@ -22,7 +22,6 @@
 #include "TSP.h"
 
 
-
 namespace PEA {
 
     const double ALPHA = 1.0;  // Wpływ feromonów
@@ -39,8 +38,6 @@ namespace PEA {
         double x, y;
     };
 
-    std::vector<City> cities;
-
     /**
      * @brief Konstruktor
      */
@@ -51,7 +48,7 @@ namespace PEA {
 
     /**
      * @brief Destruktor
-     */  
+     */
     TSP::~TSP() {
         configFile.close();
         outputFile.close();
@@ -59,7 +56,7 @@ namespace PEA {
 
     /**
      * @brief Uruchomienie programu
-     */ 
+     */
     void TSP::handleConfigFile() {
         if (!this->configFile.is_open()) {
             std::cout << "Config file error." << std::endl;
@@ -71,7 +68,7 @@ namespace PEA {
             exit(1);
         }
 
-        outputFile<<"Time[ms];Distance;Path"<<std::endl;
+        outputFile << "Time[ms];Distance;Path" << std::endl;
 
         this->configFile.clear();
         this->configFile.seekg(0, std::ios::beg);
@@ -185,7 +182,7 @@ namespace PEA {
         if (!this->readSourceFile()) {
             return;
         }
-        
+
         // wyswietlenie linii informacyjnej
         this->outputFile << this->sourceFileName << ";" << expectedLength << ";";
         std::cout << this->sourceFileName << " " << expectedLength << " ";
@@ -199,6 +196,7 @@ namespace PEA {
         std::cout << std::endl;
 
         for (int i = 1; i <= repeatCount; i++) {
+            std::cout<<"Starting algorithm iteration " << i << std::endl;
             // Start pomiaru czasu
             auto start_time = std::chrono::high_resolution_clock::now();
 
@@ -215,7 +213,8 @@ namespace PEA {
             // Wyświetl najlepszą trasę i jej koszt
             this->outputFile << result.first[0];
             std::cout << result.first[0];
-            for (int i = 1; i < cities.size();; i++) {
+            for (int i = 1; i < cities.size();
+            i++) {
                 this->outputFile << " " << result.first[i];
                 std::cout << " " << result.first[i];
             }
@@ -241,6 +240,11 @@ namespace PEA {
         int id;
         double x, y;
 
+        std::string tmp;
+        do{
+            this->sourceFile >> tmp;
+        } while(tmp != "NODE_COORD_SECTION");
+
         while (this->sourceFile >> id >> x >> y) {
             cities.push_back({id, x, y});
         }
@@ -249,15 +253,19 @@ namespace PEA {
         this->cities = cities;
         return true;
     }
-   
+
     /**
      * Algorytm mrówkowy dla problemu TSP
      */
     std::pair<std::vector<int>, int> TSP::antAlgorithm() {
         std::vector<int> bestSolution;
         double bestCost;
-                        
+
         int numCities = cities.size();
+        if(numCities == 0){
+            throw std::runtime_error(std::string("Empty city list error"));
+        }
+        std::cout << "City count: " << numCities << std::endl;
         std::vector<std::vector<double>> distances(numCities, std::vector<double>(numCities, 0.0));
         for (int i = 0; i < numCities; ++i) {
             for (int j = 0; j < numCities; ++j) {
@@ -300,7 +308,7 @@ namespace PEA {
     /**
      * Obliczenie odległości pomiedzy miastami
      */
-    double TSP::calculateDistance(const City& city1, const City& city2) {
+    double TSP::calculateDistance(const City &city1, const City &city2) {
         double dx = city1.x - city2.x;
         double dy = city1.y - city2.y;
         return std::sqrt(dx * dx + dy * dy);
@@ -309,7 +317,7 @@ namespace PEA {
     /**
      * Inicjalizacja feromonów
      */
-    void TSP::initializePheromones(std::vector<std::vector<double>>& pheromones, double initialValue) {
+    void TSP::initializePheromones(std::vector<std::vector<double>> &pheromones, double initialValue) {
         int numCities = pheromones.size();
         for (int i = 0; i < numCities; ++i) {
             for (int j = 0; j < numCities; ++j) {
@@ -321,7 +329,8 @@ namespace PEA {
     /**
      * Ruchy mrówek
      */
-    void TSP::antSteps(const std::vector<City>& cities, std::vector<std::vector<double>>& pheromones, std::vector<int>& tour) {
+    void TSP::antSteps(const std::vector<City> &cities, std::vector<std::vector<double>> &pheromones,
+                       std::vector<int> &tour) {
         int numCities = cities.size();
         std::vector<bool> visited(numCities, false);
 
@@ -339,7 +348,7 @@ namespace PEA {
                 if (!visited[j]) {
                     // Prawdopodobieństwo wyboru miasta j
                     probabilities[j] = std::pow(pheromones[currentCity][j], ALPHA) *
-                                    std::pow(1.0 / calculateDistance(cities[currentCity], cities[j]), BETA);
+                                       std::pow(1.0 / calculateDistance(cities[currentCity], cities[j]), BETA);
 
                     totalProbability += probabilities[j];
                 }
@@ -370,7 +379,8 @@ namespace PEA {
     /**
      * Aktualizacja feromonów globalnie po przejściu mrówek
      */
-    void TSP::updatePheromones(std::vector<std::vector<double>>& pheromones, const std::vector<std::vector<double>>& deltaPheromones) {
+    void TSP::updatePheromones(std::vector<std::vector<double>> &pheromones,
+                               const std::vector<std::vector<double>> &deltaPheromones) {
         int numCities = pheromones.size();
         for (int i = 0; i < numCities; ++i) {
             for (int j = 0; j < numCities; ++j) {
@@ -383,7 +393,7 @@ namespace PEA {
     /**
      * Pętla powtórzeń iteracji
      */
-    void TSP::runAnts(const std::vector<City>& cities, std::vector<std::vector<double>>& pheromones) {
+    void TSP::runAnts(const std::vector<City> &cities, std::vector<std::vector<double>> &pheromones) {
         int numCities = cities.size();
         std::vector<std::vector<double>> deltaPheromones(numCities, std::vector<double>(numCities, 0.0));
 
@@ -425,6 +435,6 @@ namespace PEA {
             }
         }
     }
-    
+
 } // PEA
 
