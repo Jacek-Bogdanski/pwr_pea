@@ -429,7 +429,7 @@ namespace PEA {
         std::vector<bool> visited(numCities, false);
 
         // Początkowe miasto (startowe)
-        int currentCity = tour[0];
+        int currentCity = getRandomInt(0, numCities-1);
         visited[currentCity] = true;
 
         // Wybór kolejnych miast
@@ -450,13 +450,14 @@ namespace PEA {
                 }
 
                 // Prawdopodobieństwo wyboru miasta j
-                probabilities[j] = std::pow(pheromones[currentCity][j], ALPHA) *
-                                   std::pow(1.0 / distances[currentCity][j], BETA);
+                double pheromone = std::pow(pheromones[currentCity][j], ALPHA);
+                double heuristic = std::pow(1.0 / distances[currentCity][j], BETA);
+                probabilities[j] = pheromone * heuristic;
 
                 totalProbability += probabilities[j];
             }
 
-            // Wybór miasta na podstawie ruletki
+            // Wybór miasta na podstawie prawdopodobienstwa
             double randomValue = (rand() / (RAND_MAX + 1.0)) * totalProbability;
             double cumulativeProbability = 0.0;
             int chosenCity = -1;
@@ -471,15 +472,12 @@ namespace PEA {
                 if (visited[j]) {
                     continue;
                 }
+
                 cumulativeProbability += probabilities[j];
                 if (cumulativeProbability >= randomValue) {
                     chosenCity = j;
                     break;
                 }
-            }
-
-            if (chosenCity == -1) {
-                continue;
             }
 
             // Aktualizacja trasy
@@ -535,6 +533,7 @@ namespace PEA {
                 deltaPheromones[tour[0]][tour[numCities - 1]] += 1.0 / tourLength;
             }
 
+          
             // Aktualizacja feromonów globalnie
             updatePheromones(pheromones, deltaPheromones);
 
@@ -545,6 +544,16 @@ namespace PEA {
                 }
             }
         }
+    }
+
+    /**
+    * Generator liczb losowych
+    */
+    int TSP::getRandomInt(int minValue, int maxValue) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<int> distribution(minValue, maxValue);
+        return distribution(gen);
     }
 
 } // PEA

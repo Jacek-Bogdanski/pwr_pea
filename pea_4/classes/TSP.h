@@ -131,6 +131,10 @@ namespace PEA {
         */
         void runAnts(std::vector<std::vector<double>> &pheromones);
 
+        /**
+        * Generator liczb losowych
+        */
+        int getRandomInt(int minValue, int maxValue); 
     };
 
 } // PEA
