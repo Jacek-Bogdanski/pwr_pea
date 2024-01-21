@@ -38,8 +38,6 @@ namespace PEA {
         const int numAnts = 10;
         const int numIterations = 100;
 
-        // Miasta wczytane z pliku
-        std::vector<City> cities;
 
     public:
         /**
@@ -61,14 +59,19 @@ namespace PEA {
         std::string configFileName;
         std::string sourceDirectory = "source/";
         std::string outputFileName = "output.txt";
+        std::string statFileName = "stats.txt";
         std::string sourceFileName;
 
         std::ifstream configFile;
         std::ofstream outputFile;
+        std::ofstream statFile;
         std::ifstream sourceFile;
 
+        std::string tspType = "TSP";
 
-        int repeatCount, expectedLength;;
+        int repeatCount, expectedLength;
+
+        std::vector<std::vector<double>> distances;
 
         /**
         * @brief Macierz sąsiedztwa
@@ -115,7 +118,7 @@ namespace PEA {
         * Ruchy mrówek
         */
         void
-        antSteps(const std::vector<City> &cities, std::vector<std::vector<double>> &pheromones, std::vector<int> &tour);
+        antSteps(std::vector<std::vector<double>> &pheromones, std::vector<int> &tour);
 
         /**
         * Aktualizacja feromonów globalnie po przejściu mrówek
@@ -126,7 +129,7 @@ namespace PEA {
         /**
         * Pętla powtórzeń iteracji
         */
-        void runAnts(const std::vector<City> &cities, std::vector<std::vector<double>> &pheromones);
+        void runAnts(std::vector<std::vector<double>> &pheromones);
 
     };
 

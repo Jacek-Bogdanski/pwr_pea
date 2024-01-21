@@ -1,0 +1,8 @@
+Filename;Type;Expected Distance;BestDistance;AvgError[%];AvgTime[ms]
+burma14.tsp;TSP;42;42;0;31.6566;Filename;Type;Expected Distance;BestDistance;AvgError[%];AvgTime[ms]
+gr17.tsp;ATSP;0;4722;inf;39.4745;Filename;Type;Expected Distance;BestDistance;AvgError[%];AvgTime[ms]
+gr21.tsp;ATSP;0;6620;inf;81.4551;Filename;Type;Expected Distance;BestDistance;AvgError[%];AvgTime[ms]
+gr24.tsp;ATSP;1272;3436;170.126;71.4457;Filename;Type;Expected Distance;BestDistance;AvgError[%];AvgTime[ms]
+bays29.tsp;TSP;0;38666;inf;3687.15;Filename;Type;Expected Distance;BestDistance;AvgError[%];AvgTime[ms]
+ch150.tsp;TSP;6528;52812;709.007;1319.27;Filename;Type;Expected Distance;BestDistance;AvgError[%];AvgTime[ms]
+gr202.tsp;TSP;40160;768;-98.0876;1806.6;Filename;Type;Expected Distance;BestDistance;AvgError[%];AvgTime[ms]

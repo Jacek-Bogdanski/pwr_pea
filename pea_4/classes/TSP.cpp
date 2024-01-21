@@ -43,6 +43,8 @@ namespace PEA {
     TSP::~TSP() {
         configFile.close();
         outputFile.close();
+        statFile.close();
+        sourceFile.close();
     }
 
     /**
@@ -59,7 +61,8 @@ namespace PEA {
             exit(1);
         }
 
-        outputFile << "Time[ms];Distance;Path" << std::endl;
+        outputFile << "Time[ms];Error;Distance;Path" << std::endl;
+        statFile << "Filename;Type;Expected Distance;BestDistance;AvgError[%];AvgTime[ms]" << std::endl;
 
         this->configFile.clear();
         this->configFile.seekg(0, std::ios::beg);
@@ -95,6 +98,7 @@ namespace PEA {
 
         this->setOutputFileName();
         this->outputFile.open(outputFileName, std::ios::trunc);
+        this->statFile.open(statFileName, std::ios::trunc);
     }
 
     /**
@@ -143,7 +147,11 @@ namespace PEA {
 
             if (tokens.size() == 1 && tokens[0].length() > 0) {
                 this->outputFileName = tokens[0];
+            } else if (tokens.size() == 2 && tokens[0].length() > 0 && tokens[1].length() > 0) {
+                this->outputFileName = tokens[0];
+                this->statFileName = tokens[1];
             }
+
         }
     }
 
@@ -185,8 +193,12 @@ namespace PEA {
         this->outputFile << std::endl;
         std::cout << std::endl;
 
+        long double avgError = 0, avgTime = 0;
+
+        int forAvgCount = 0, bestTourCost = std::numeric_limits<int>::max();
+
         for (int i = 1; i <= repeatCount; i++) {
-            std::cout<<"Starting algorithm iteration " << i << std::endl;
+            std::cout << "## Starting algorithm iteration " << i << std::endl;
             // Start pomiaru czasu
             auto start_time = std::chrono::high_resolution_clock::now();
 
@@ -200,16 +212,25 @@ namespace PEA {
             this->outputFile << std::fixed << std::setprecision(4) << miliseconds << ";";
             std::cout << std::fixed << std::setprecision(4) << miliseconds << " ";
 
+            avgTime += miliseconds;
+
             // wyswietlenie bledu
-            double error = ((double)result.second - (double)expectedLength)/(double)expectedLength*100.0;
-            this->outputFile<<error<<"%;";
-            std::cout<<error<<"% ";
+            double error = ((double) result.second - (double) expectedLength) / (double) expectedLength * 100.0;
+            this->outputFile << error << "%;";
+            std::cout << error << "% ";
+
+            avgError += error;
+            forAvgCount++;
+
+            if (result.second < bestTourCost) {
+                bestTourCost = result.second;
+            }
 
             // Wyświetl najlepszą trasę i jej koszt
-            this->outputFile << result.second << ";["<< result.first[0];
+            this->outputFile << result.second << ";[" << result.first[0];
             std::cout << result.second << " [" << result.first[0];
-            for (int i = 1; i < cities.size();
-            i++) {
+            for (int i = 1; i < distances.size();
+                 i++) {
                 this->outputFile << " " << result.first[i];
                 std::cout << " " << result.first[i];
             }
@@ -217,6 +238,15 @@ namespace PEA {
             this->outputFile << " 0]" << std::endl;
             std::cout << " 0]" << std::endl;
         }
+        avgError /= (double) forAvgCount;
+        avgTime /= (double) forAvgCount;
+
+
+        this->statFile << this->sourceFileName << ";" << this->tspType << ";" << expectedLength << ";" << bestTourCost
+                       << ";" << avgError << ";" << avgTime << ";" << std::endl;
+        std::cout << this->sourceFileName << " " << this->tspType << " " << expectedLength << " " << bestTourCost << " "
+                  << " " << avgError << " " << " " << avgTime << " " << std::endl;
+
         this->outputFile << std::endl;
         std::cout << std::endl;
     }
@@ -225,27 +255,108 @@ namespace PEA {
      * Wczytanie macierzy odległości z pliku
      */
     bool TSP::readSourceFile() {
+        if (this->sourceFile.is_open()) {
+            this->sourceFile.close();
+        }
+
         this->sourceFile.open(sourceDirectory + this->sourceFileName);
         if (!this->sourceFile.is_open()) {
             std::cout << "Source file error: " + this->sourceFileName + " not found in " + sourceDirectory << std::endl;
             return false;
         }
 
-        std::vector<City> cities;
+        this->tspType = "TSP";
+
+        std::cout << "## Reading file: " << this->sourceFileName << std::endl;
+        this->sourceFile.seekg(0, std::ios::beg);
         int id;
         double x, y;
 
-        std::string tmp;
-        do{
-            this->sourceFile >> tmp;
-        } while(tmp != "NODE_COORD_SECTION");
+        int mode = 1;
+        int size;
 
+        int countEmpty = 0;
+
+        std::string tmp;
+        do {
+            this->sourceFile >> tmp;
+            if (tmp == "DIMENSION:") {
+                this->sourceFile >> size;
+            }
+
+            if (tmp == "TYPE:") {
+                this->sourceFile >> tmp;
+                if (tmp == "ATSP") {
+                    this->tspType = "ATSP";
+                }
+            }
+
+            if (tmp == "LOWER_DIAG_ROW") {
+                mode = 2;
+            }
+            if (tmp == "FULL_MATRIX") {
+                mode = 3;
+            }
+            std::cout << "### TOKEN: " << tmp << std::endl;
+            if (tmp.empty()) {
+                countEmpty++;
+            } else {
+                countEmpty = 0;
+            }
+
+        } while (tmp != "NODE_COORD_SECTION" && tmp != "EDGE_WEIGHT_SECTION" && countEmpty < 10);
+
+        if (mode == 2) {
+            //LOWER_DIAG_ROW
+            std::cout << "## Mode: LOWER_DIAG_ROW" << std::endl;
+            std::vector<std::vector<double>> distances(size, std::vector<double>(size, 0.0));
+
+            for (int i = 0; i < size; ++i) {
+                for (int j = 0; j <= i; ++j) {
+                    this->sourceFile >> distances[i][j];
+
+                    distances[j][i] = distances[i][j];
+                }
+            }
+            this->distances = distances;
+
+            return true;
+        }
+
+        if (mode == 3) {
+            //FULL_MATRIX
+            std::cout << "## Mode: FULL_MATRIX" << std::endl;
+            std::vector<std::vector<double>> distances(size, std::vector<double>(size, 0.0));
+
+            for (int i = 0; i < size; ++i) {
+                for (int j = 0; j < size; ++j) {
+                    this->sourceFile >> distances[i][j];
+
+                    distances[j][i] = distances[i][j];
+                }
+            }
+            this->distances = distances;
+
+            return true;
+        }
+
+        std::cout << "## Mode: COORD_DISPLAY" << std::endl;
+        std::vector<City> cities;
         while (this->sourceFile >> id >> x >> y) {
             cities.push_back({id, x, y});
         }
 
         this->sourceFile.close();
-        this->cities = cities;
+
+        int numCities = cities.size();
+        std::vector<std::vector<double>> distances(numCities, std::vector<double>(numCities, 0.0));
+        for (int i = 0; i < numCities; ++i) {
+            for (int j = 0; j < numCities; ++j) {
+                distances[i][j] = calculateDistance(cities[i], cities[j]);
+            }
+        }
+        this->distances = distances;
+
         return true;
     }
 
@@ -253,23 +364,19 @@ namespace PEA {
      * Algorytm mrówkowy dla problemu TSP
      */
     std::pair<std::vector<int>, int> TSP::antAlgorithm() {
-        int numCities = cities.size();
-        if(numCities == 0){
-            throw std::runtime_error(std::string("Empty city list error"));
+        int numCities = distances.size();
+        if (numCities == 0) {
+            throw std::runtime_error(std::string("## Empty city list error"));
         }
-        std::cout << "City count: " << numCities << std::endl;
-        std::vector<std::vector<double>> distances(numCities, std::vector<double>(numCities, 0.0));
-        for (int i = 0; i < numCities; ++i) {
-            for (int j = 0; j < numCities; ++j) {
-                distances[i][j] = calculateDistance(cities[i], cities[j]);
-            }
-        }
+        std::cout << "## City count: " << numCities << std::endl;
 
         // inicjalizacja feromonow
         std::vector<std::vector<double>> pheromones(numCities, std::vector<double>(numCities, FEROMON_INITIAL_VALUE));
+        std::cout << "## Feromones initialized" << std::endl;
 
         // Wywołanie algorytmu mrówkowego
-        runAnts(cities, pheromones);
+        runAnts(pheromones);
+        std::cout << "## Ants gone" << std::endl;
 
         // Znajdowanie najlepszej trasy
         std::vector<int> bestTour(numCities, 0);
@@ -287,10 +394,16 @@ namespace PEA {
             }
             tourLength += distances[bestTour[numCities - 1]][bestTour[0]];
 
+            if (bestTourLength != std::numeric_limits<double>::max()) {
+                std::cout << "### CMP tour best/current: " << bestTourLength << "/" << tourLength << std::endl;
+            }
+
             if (tourLength < bestTourLength) {
                 bestTourLength = tourLength;
             }
         }
+
+        std::cout << "## Result found" << std::endl;
 
         std::pair<std::vector<int>, int> result;
         result.first = bestTour;
@@ -310,9 +423,9 @@ namespace PEA {
     /**
      * Ruchy mrówek
      */
-    void TSP::antSteps(const std::vector<City> &cities, std::vector<std::vector<double>> &pheromones,
+    void TSP::antSteps(std::vector<std::vector<double>> &pheromones,
                        std::vector<int> &tour) {
-        int numCities = cities.size();
+        int numCities = distances.size();
         std::vector<bool> visited(numCities, false);
 
         // Początkowe miasto (startowe)
@@ -326,13 +439,21 @@ namespace PEA {
             double totalProbability = 0.0;
 
             for (int j = 0; j < numCities; ++j) {
-                if (!visited[j]) {
-                    // Prawdopodobieństwo wyboru miasta j
-                    probabilities[j] = std::pow(pheromones[currentCity][j], ALPHA) *
-                                       std::pow(1.0 / calculateDistance(cities[currentCity], cities[j]), BETA);
-
-                    totalProbability += probabilities[j];
+                // brak trasy
+                if (distances[currentCity][j] == 0) {
+                    continue;
                 }
+
+                // juz odwiedzono
+                if (visited[j]) {
+                    continue;
+                }
+
+                // Prawdopodobieństwo wyboru miasta j
+                probabilities[j] = std::pow(pheromones[currentCity][j], ALPHA) *
+                                   std::pow(1.0 / distances[currentCity][j], BETA);
+
+                totalProbability += probabilities[j];
             }
 
             // Wybór miasta na podstawie ruletki
@@ -341,13 +462,24 @@ namespace PEA {
             int chosenCity = -1;
 
             for (int j = 0; j < numCities; ++j) {
-                if (!visited[j]) {
-                    cumulativeProbability += probabilities[j];
-                    if (cumulativeProbability >= randomValue) {
-                        chosenCity = j;
-                        break;
-                    }
+                // brak trasy
+                if (distances[currentCity][j] == 0) {
+                    continue;
                 }
+
+                // juz odwiedzono
+                if (visited[j]) {
+                    continue;
+                }
+                cumulativeProbability += probabilities[j];
+                if (cumulativeProbability >= randomValue) {
+                    chosenCity = j;
+                    break;
+                }
+            }
+
+            if (chosenCity == -1) {
+                continue;
             }
 
             // Aktualizacja trasy
@@ -374,27 +506,25 @@ namespace PEA {
     /**
      * Pętla powtórzeń iteracji
      */
-    void TSP::runAnts(const std::vector<City> &cities, std::vector<std::vector<double>> &pheromones) {
-        int numCities = cities.size();
+    void TSP::runAnts(std::vector<std::vector<double>> &pheromones) {
+        int numCities = distances.size();
         std::vector<std::vector<double>> deltaPheromones(numCities, std::vector<double>(numCities, 0.0));
 
         for (int iteration = 0; iteration < numIterations; ++iteration) {
             // Symulacja ruchu mrówek
             for (int ant = 0; ant < numAnts; ++ant) {
                 std::vector<int> tour(numCities, 0);
-                for (int i = 1; i < numCities; ++i) {
-                    tour[i] = i;
-                }
+                tour[0] = getra
 
                 // Implementacja ruchu mrówki
-                antSteps(cities, pheromones, tour);
+                antSteps(pheromones, tour);
 
                 // Obliczanie długości trasy mrówki
                 double tourLength = 0.0;
                 for (int i = 0; i < numCities - 1; ++i) {
-                    tourLength += calculateDistance(cities[tour[i]], cities[tour[i + 1]]);
+                    tourLength += distances[tour[i]][tour[i + 1]];
                 }
-                tourLength += calculateDistance(cities[tour[numCities - 1]], cities[tour[0]]);
+                tourLength += distances[tour[numCities - 1]][tour[0]];
 
                 // Aktualizacja deltaPheromones
                 for (int i = 0; i < numCities - 1; ++i) {

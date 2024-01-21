@@ -1,6 +1,7 @@
 # ninja log v5
-4	816	7274865580903231	CMakeFiles/pea_4.dir/main.cpp.obj	ffba5b5fdcedb6f5
-5	2318	7274874259705726	CMakeFiles/pea_4.dir/classes/TSP.cpp.obj	18a8a210bfeb8e75
-2319	3410	7274874270486704	pea_4.exe	6e425ed1c138f205
-5	1886	7274875173434823	CMakeFiles/pea_4.dir/classes/TSP.cpp.obj	18a8a210bfeb8e75
-1886	2542	7274875179977295	pea_4.exe	6e425ed1c138f205
+0	1575	7275361589827373	CMakeFiles/pea_4.dir/main.cpp.obj	ffba5b5fdcedb6f5
+4	2147	7275372848756415	CMakeFiles/pea_4.dir/classes/TSP.cpp.obj	18a8a210bfeb8e75
+2148	2993	7275372857144836	pea_4.exe	6e425ed1c138f205
+6	1350	7275398175083153	CMakeFiles/pea_4.dir/main.cpp.obj	ffba5b5fdcedb6f5
+13	2072	7275398182284816	CMakeFiles/pea_4.dir/classes/TSP.cpp.obj	18a8a210bfeb8e75
+2072	2778	7275398189263396	pea_4.exe	6e425ed1c138f205

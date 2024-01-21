@@ -1,0 +1,9 @@
+Filename;Type;Expected Distance;BestDistance;AvgError[%];AvgTime[ms]
+burma14.tsp;TSP;42;42;0;32.4109;
+gr17.tsp;TSP;0;4722;inf;45.5042;
+gr21.tsp;TSP;0;6620;inf;66.1362;
+gr24.tsp;TSP;1272;3436;170.126;44.5212;
+bays29.tsp;TSP;0;5752;inf;56.9533;
+ch150.tsp;TSP;6528;52812;709.007;1048.74;
+gr202.tsp;TSP;40160;768;-98.0876;1808.96;
+pcb442.tsp;TSP;50778;221435;336.085;8211.77;
