@@ -62,7 +62,7 @@ namespace PEA {
         }
 
         outputFile << "Time[ms];Error;Distance;Path" << std::endl;
-        statFile << "Filename;Type;Expected Distance;BestDistance;AvgError[%];AvgTime[ms]" << std::endl;
+        statFile << "Filename;Type;AS Type;Expected Distance;Best Distance;Avg Error[%];Avg Time[ms];Best Path" << std::endl;
 
         this->configFile.clear();
         this->configFile.seekg(0, std::ios::beg);
@@ -146,7 +146,16 @@ namespace PEA {
             }
 
             if (tokens.size() == 1 && tokens[0].length() > 0) {
-                this->outputFileName = tokens[0];
+
+                if(tokens[0] == "MODE_CAS"){
+                    this->asType = "CAS";
+                } else if(tokens[0] == "MODE_DAS"){
+                    this->asType = "DAS";
+                }
+                else{
+                    this->outputFileName = tokens[0];
+                }
+
             } else if (tokens.size() == 2 && tokens[0].length() > 0 && tokens[1].length() > 0) {
                 this->outputFileName = tokens[0];
                 this->statFileName = tokens[1];
@@ -194,7 +203,7 @@ namespace PEA {
         std::cout << std::endl;
 
         long double avgError = 0, avgTime = 0;
-
+        std::vector<int> bestPath;
         int forAvgCount = 0, bestTourCost = std::numeric_limits<int>::max();
 
         for (int i = 1; i <= repeatCount; i++) {
@@ -224,30 +233,43 @@ namespace PEA {
 
             if (result.second < bestTourCost) {
                 bestTourCost = result.second;
+                bestPath = result.first;
             }
 
             // Wyświetl najlepszą trasę i jej koszt
             this->outputFile << result.second << ";[" << result.first[0];
             std::cout << result.second << " [" << result.first[0];
-            for (int i = 1; i < distances.size();
+            for (int i = 1; i < result.first.size();
                  i++) {
                 this->outputFile << " " << result.first[i];
                 std::cout << " " << result.first[i];
             }
             // dopisz nawias koncowy
-            this->outputFile << " 0]" << std::endl;
-            std::cout << " 0]" << std::endl;
+            this->outputFile << "]" << std::endl;
+            std::cout << "]" << std::endl;
         }
         avgError /= (double) forAvgCount;
         avgTime /= (double) forAvgCount;
 
 
-        this->statFile << this->sourceFileName << ";" << this->tspType << ";" << expectedLength << ";" << bestTourCost
-                       << ";" << avgError << ";" << avgTime << ";" << std::endl;
-        std::cout << this->sourceFileName << " " << this->tspType << " " << expectedLength << " " << bestTourCost << " "
-                  << " " << avgError << " " << " " << avgTime << " " << std::endl;
+        this->statFile << this->sourceFileName << ";" << this->tspType << ";" << this->asType << ";" << expectedLength << ";" << bestTourCost
+                       << ";" << avgError << ";" << avgTime << ";";
+        std::cout << this->sourceFileName << " " << this->tspType << " " << this->asType << " " << expectedLength << " " << bestTourCost << " "
+                  << " " << avgError << " " << " " << avgTime << " ";
+
+        this->statFile << "[" << bestPath[0];
+        std::cout << "[" << bestPath[0];
+        for (int i = 1; i < bestPath.size();
+             i++) {
+            this->statFile << " " << bestPath[i];
+            std::cout << " " << bestPath[i];
+        }
+        // dopisz nawias koncowy
+        this->statFile << "]";
+        std::cout << "]";
 
         this->outputFile << std::endl;
+        this->statFile << std::endl;
         std::cout << std::endl;
     }
 
@@ -353,6 +375,7 @@ namespace PEA {
         for (int i = 0; i < numCities; ++i) {
             for (int j = 0; j < numCities; ++j) {
                 distances[i][j] = calculateDistance(cities[i], cities[j]);
+                distances[j][i] =  distances[i][j];
             }
         }
         this->distances = distances;
@@ -375,39 +398,19 @@ namespace PEA {
         std::cout << "## Feromones initialized" << std::endl;
 
         // Wywołanie algorytmu mrówkowego
-        runAnts(pheromones);
+        std::vector<int> bestTour = runAnts(pheromones);
         std::cout << "## Ants gone" << std::endl;
 
-        // Znajdowanie najlepszej trasy
-        std::vector<int> bestTour(numCities, 0);
-        for (int i = 1; i < numCities; ++i) {
-            bestTour[i] = i;
-        }
-        double bestTourLength = std::numeric_limits<double>::max();
-
-        for (int i = 0; i < numCities; ++i) {
-            std::rotate(bestTour.begin(), bestTour.begin() + 1, bestTour.end());
-
-            double tourLength = 0.0;
-            for (int j = 0; j < numCities - 1; ++j) {
-                tourLength += distances[bestTour[j]][bestTour[j + 1]];
-            }
-            tourLength += distances[bestTour[numCities - 1]][bestTour[0]];
-
-            if (bestTourLength != std::numeric_limits<double>::max()) {
-                std::cout << "### CMP tour best/current: " << bestTourLength << "/" << tourLength << std::endl;
-            }
-
-            if (tourLength < bestTourLength) {
-                bestTourLength = tourLength;
-            }
+        double bestTourLength = 0.0;
+        for (int j = 0; j < numCities; ++j) {
+            bestTourLength += distances[bestTour[j]][bestTour[j + 1]];
         }
 
         std::cout << "## Result found" << std::endl;
 
         std::pair<std::vector<int>, int> result;
         result.first = bestTour;
-        result.second = bestTourLength;
+        result.second = ceil(bestTourLength);
         return result;
     }
 
@@ -431,6 +434,8 @@ namespace PEA {
         // Początkowe miasto (startowe)
         int currentCity = getRandomInt(0, numCities-1);
         visited[currentCity] = true;
+        tour[0] = currentCity;
+        tour[numCities] = currentCity;
 
         // Wybór kolejnych miast
         for (int i = 1; i < numCities; ++i) {
@@ -504,46 +509,52 @@ namespace PEA {
     /**
      * Pętla powtórzeń iteracji
      */
-    void TSP::runAnts(std::vector<std::vector<double>> &pheromones) {
+    std::vector<int> TSP::runAnts(std::vector<std::vector<double>> &pheromones) {
+        std::vector<int> bestTour(0);
+        int bestTourLength = std::numeric_limits<int>::max();
         int numCities = distances.size();
         std::vector<std::vector<double>> deltaPheromones(numCities, std::vector<double>(numCities, 0.0));
 
-        for (int iteration = 0; iteration < numIterations; ++iteration) {
+        for (int iteration = 0; iteration < numIterations; iteration++) {
             // Symulacja ruchu mrówek
             for (int ant = 0; ant < numAnts; ++ant) {
-                std::vector<int> tour(numCities, 0);
-                tour[0] = getra
+                std::vector<int> tour(numCities+1, 0);
 
                 // Implementacja ruchu mrówki
                 antSteps(pheromones, tour);
 
                 // Obliczanie długości trasy mrówki
                 double tourLength = 0.0;
-                for (int i = 0; i < numCities - 1; ++i) {
+                for (int i = 0; i < numCities; ++i) {
                     tourLength += distances[tour[i]][tour[i + 1]];
                 }
-                tourLength += distances[tour[numCities - 1]][tour[0]];
 
                 // Aktualizacja deltaPheromones
-                for (int i = 0; i < numCities - 1; ++i) {
-                    deltaPheromones[tour[i]][tour[i + 1]] += 1.0 / tourLength;
-                    deltaPheromones[tour[i + 1]][tour[i]] += 1.0 / tourLength;
+                if(this->asType == "CAS"){
+                    for (int i = 0; i < numCities; ++i) {
+                        deltaPheromones[tour[i]][tour[i + 1]] += 1.0 / tourLength;
+                        deltaPheromones[tour[i + 1]][tour[i]] += 1.0 / tourLength;
+                    }
                 }
-                deltaPheromones[tour[numCities - 1]][tour[0]] += 1.0 / tourLength;
-                deltaPheromones[tour[0]][tour[numCities - 1]] += 1.0 / tourLength;
-            }
+                else if(this->asType == "DAS"){
+                    for (int i = 0; i < numCities; ++i) {
+                        deltaPheromones[tour[i]][tour[i + 1]] += 1.0;
+                        deltaPheromones[tour[i + 1]][tour[i]] += 1.0;
+                    }
+                }
 
+
+                if(tourLength < bestTourLength){
+                    bestTourLength = tourLength;
+                    bestTour = tour;
+                }
+            }
           
-            // Aktualizacja feromonów globalnie
+            // Aktualizacja i parowanie feromonów globalnie
             updatePheromones(pheromones, deltaPheromones);
-
-            // Parowanie feromonów
-            for (int i = 0; i < numCities; ++i) {
-                for (int j = 0; j < numCities; ++j) {
-                    pheromones[i][j] *= (1.0 - RHO);
-                }
-            }
         }
+
+        return bestTour;
     }
 
     /**

@@ -1,9 +1,6 @@
-Filename;Type;Expected Distance;BestDistance;AvgError[%];AvgTime[ms]
-burma14.tsp;TSP;42;42;0;32.4109;
-gr17.tsp;TSP;0;4722;inf;45.5042;
-gr21.tsp;TSP;0;6620;inf;66.1362;
-gr24.tsp;TSP;1272;3436;170.126;44.5212;
-bays29.tsp;TSP;0;5752;inf;56.9533;
-ch150.tsp;TSP;6528;52812;709.007;1048.74;
-gr202.tsp;TSP;40160;768;-98.0876;1808.96;
-pcb442.tsp;TSP;50778;221435;336.085;8211.77;
+Filename;Type;AS Type;Expected Distance;Best Distance;Avg Error[%];Avg Time[ms];Best Path
+burma14.tsp;TSP;CAS;31;32;3.22581;53.5601;[13 2 3 4 5 11 6 12 9 10 8 7 0 1 13]
+gr17.tsp;TSP;CAS;0;2085;inf;70.244;[0 3 12 6 7 5 16 13 14 2 10 9 1 4 8 11 15 0]
+gr21.tsp;TSP;CAS;0;2707;inf;99.8128;[0 11 3 10 19 18 16 9 17 12 13 14 20 1 2 8 4 15 5 7 6 0]
+gr24.tsp;TSP;CAS;1272;1272;0.683962;131.915;[21 16 9 4 20 7 23 5 6 2 10 15 0 11 3 22 8 12 13 19 1 14 18 17 21]
+bays29.tsp;TSP;CAS;0;2039;inf;182.352;[0 27 5 11 8 4 25 28 2 1 20 19 9 3 14 17 16 13 21 10 18 24 6 22 26 7 23 15 12 0]

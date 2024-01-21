@@ -32,10 +32,10 @@ namespace PEA {
         const double BETA = 2.0;   // Wpływ widoczności (odległości)
         const double RHO = 0.5;    // Współczynnik parowania feromonów
 
-        const double FEROMON_INITIAL_VALUE = 1.0;    // Wartosc poczatkowa feromo
+        const double FEROMON_INITIAL_VALUE = 0.0;    // Wartosc poczatkowa feromonu
 
         // Parametry algorytmu mrówkowego
-        const int numAnts = 10;
+        const int numAnts = 50;
         const int numIterations = 100;
 
 
@@ -68,6 +68,7 @@ namespace PEA {
         std::ifstream sourceFile;
 
         std::string tspType = "TSP";
+        std::string asType = "CAS";
 
         int repeatCount, expectedLength;
 
@@ -129,7 +130,7 @@ namespace PEA {
         /**
         * Pętla powtórzeń iteracji
         */
-        void runAnts(std::vector<std::vector<double>> &pheromones);
+        std::vector<int> runAnts(std::vector<std::vector<double>> &pheromones);
 
         /**
         * Generator liczb losowych
