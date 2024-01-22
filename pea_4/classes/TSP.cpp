@@ -71,8 +71,6 @@ namespace PEA {
         while (getline(this->configFile, line)) {
             this->handleConfigLine(line);
         }
-
-        return;
     }
 
     /**
@@ -336,12 +334,10 @@ namespace PEA {
             for (int i = 0; i < size; ++i) {
                 for (int j = 0; j <= i; ++j) {
                     this->sourceFile >> distances[i][j];
-
                     distances[j][i] = distances[i][j];
                 }
             }
             this->distances = distances;
-
             return true;
         }
 
@@ -353,12 +349,10 @@ namespace PEA {
             for (int i = 0; i < size; ++i) {
                 for (int j = 0; j < size; ++j) {
                     this->sourceFile >> distances[i][j];
-
-                    distances[j][i] = distances[i][j];
+                    // full matrix - bez kopiowania
                 }
             }
             this->distances = distances;
-
             return true;
         }
 
@@ -375,11 +369,10 @@ namespace PEA {
         for (int i = 0; i < numCities; ++i) {
             for (int j = 0; j < numCities; ++j) {
                 distances[i][j] = calculateDistance(cities[i], cities[j]);
-                distances[j][i] =  distances[i][j];
+                distances[j][i] = distances[i][j];
             }
         }
         this->distances = distances;
-
         return true;
     }
 
@@ -393,13 +386,17 @@ namespace PEA {
         }
         std::cout << "## City count: " << numCities << std::endl;
 
+        double feromonInitialValue = numCities/this->estimateTourLength(distances);
+
         // inicjalizacja feromonow
-        std::vector<std::vector<double>> pheromones(numCities, std::vector<double>(numCities, FEROMON_INITIAL_VALUE));
+        std::vector<std::vector<double>> pheromones(numCities, std::vector<double>(numCities, feromonInitialValue));
         std::cout << "## Feromones initialized" << std::endl;
 
         // Wywołanie algorytmu mrówkowego
         std::vector<int> bestTour = runAnts(pheromones);
         std::cout << "## Ants gone" << std::endl;
+
+        shiftTour(bestTour);
 
         double bestTourLength = 0.0;
         for (int j = 0; j < numCities; ++j) {
@@ -412,6 +409,24 @@ namespace PEA {
         result.first = bestTour;
         result.second = ceil(bestTourLength);
         return result;
+    }
+
+
+    /**
+     * Przesuniecie trasy tak, aby zaczynala sie od 0
+     */
+    void TSP::shiftTour(std::vector<int> &tour) {
+        if(tour.size() == 0){
+            return;
+        }
+        int count = 0;
+        while(tour[0] != 0){
+            std::rotate(tour.begin(), tour.begin() + 1, tour.end());
+            tour[tour.size()-1] = tour[0];
+            if(count++ > tour.size()){
+                break;
+            }
+        }
     }
 
     /**
@@ -517,7 +532,7 @@ namespace PEA {
 
         for (int iteration = 0; iteration < numIterations; iteration++) {
             // Symulacja ruchu mrówek
-            for (int ant = 0; ant < numAnts; ++ant) {
+            for (int ant = 0; ant < numCities; ant++) {
                 std::vector<int> tour(numCities+1, 0);
 
                 // Implementacja ruchu mrówki
@@ -527,6 +542,13 @@ namespace PEA {
                 double tourLength = 0.0;
                 for (int i = 0; i < numCities; ++i) {
                     tourLength += distances[tour[i]][tour[i + 1]];
+                    if(distances[tour[i]][tour[i + 1]] == 0){
+                        tourLength = 0.0;
+                        break;
+                    }
+                }
+                if(tourLength == 0.0){
+                    continue;
                 }
 
                 // Aktualizacja deltaPheromones
@@ -565,6 +587,41 @@ namespace PEA {
         std::mt19937 gen(rd());
         std::uniform_int_distribution<int> distribution(minValue, maxValue);
         return distribution(gen);
+    }
+
+    /**
+    * Obliczenie szacunkowej długości trasy algorytmem najbliższego sąsiada
+    */
+    double TSP::estimateTourLength(const std::vector<std::vector<double>>& distances) {
+        int numCities = distances.size();
+        std::vector<bool> visited(numCities, false);
+        int currentCity = 0; // Startujemy z pierwszego miasta
+        visited[currentCity] = true;
+
+        double tourLength = 0.0;
+
+        for (int step = 0; step < numCities - 1; ++step) {
+            int nearestNeighbor = -1;
+            double minDistance = std::numeric_limits<double>::infinity();
+
+            for (int j = 0; j < numCities; ++j) {
+                if (!visited[j] && distances[currentCity][j] < minDistance) {
+                    nearestNeighbor = j;
+                    minDistance = distances[currentCity][j];
+                }
+            }
+
+            if (nearestNeighbor != -1) {
+                tourLength += distances[currentCity][nearestNeighbor];
+                visited[nearestNeighbor] = true;
+                currentCity = nearestNeighbor;
+            }
+        }
+
+        // Dodaj długość ostatniej krawędzi do początkowego miasta
+        tourLength += distances[currentCity][0];
+
+        return tourLength;
     }
 
 } // PEA

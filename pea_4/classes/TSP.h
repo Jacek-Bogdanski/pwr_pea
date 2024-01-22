@@ -32,11 +32,7 @@ namespace PEA {
         const double BETA = 2.0;   // Wpływ widoczności (odległości)
         const double RHO = 0.5;    // Współczynnik parowania feromonów
 
-        const double FEROMON_INITIAL_VALUE = 0.0;    // Wartosc poczatkowa feromonu
-
-        // Parametry algorytmu mrówkowego
-        const int numAnts = 50;
-        const int numIterations = 100;
+        const int numIterations = 100; // Parametry algorytmu mrówkowego
 
 
     public:
@@ -111,6 +107,11 @@ namespace PEA {
         std::pair<std::vector<int>, int> antAlgorithm();
 
         /**
+         * Przesuniecie trasy tak, aby zaczynala sie od 0
+         */
+        void shiftTour(std::vector<int> &tour);
+
+        /**
         * Obliczenie odległości pomiedzy miastami
         */
         double calculateDistance(const City &city1, const City &city2);
@@ -135,7 +136,12 @@ namespace PEA {
         /**
         * Generator liczb losowych
         */
-        int getRandomInt(int minValue, int maxValue); 
+        int getRandomInt(int minValue, int maxValue);
+
+        /**
+       * Obliczenie szacunkowej długości trasy algorytmem najbliższego sąsiada
+       */
+        double estimateTourLength(const std::vector<std::vector<double>>& distances);
     };
 
 } // PEA
