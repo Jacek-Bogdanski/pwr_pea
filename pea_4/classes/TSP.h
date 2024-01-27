@@ -28,8 +28,8 @@ namespace PEA {
 
     class TSP {
 
-        const double ALPHA = 0.1;  // Wpływ feromonów
-        const double BETA = 10.0;   // Wpływ widoczności (odległości)
+        const double ALPHA = 1;  // Wpływ feromonów
+        const double BETA = 2.0;   // Wpływ widoczności (odległości)
         const double RHO = 0.5;    // Współczynnik parowania feromonów
 
         const int numIterations = 100; // Parametry algorytmu mrówkowego
