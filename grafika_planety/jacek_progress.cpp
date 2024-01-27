@@ -61,8 +61,8 @@ struct Planet {
 	GLuint textureId;
 };
 
-GLfloat calcOrbitSpeed(GLfloat distance){
-	GLfloat T = sqrt(4 * M_PI * M_PI / (G * Msun) * pow(distance,3));
+GLfloat calcOrbitSpeed(GLfloat distance) {
+	GLfloat T = sqrt(4 * M_PI * M_PI / (G * Msun) * pow(distance, 3));
 	GLfloat speed = 1 / T * timeSpeed / TIME_SLOW;
 	return speed;
 }
@@ -81,6 +81,18 @@ Planet planets[] = {
 
 
 GLuint textureSUN;
+
+
+GLfloat mat_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+GLfloat mat_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+GLfloat mat_ambient[] = { 1.0, 1.0, 1.0, 1.0 };
+GLfloat mat_shininess = { 0.0 };
+
+
+GLfloat sun_light_ambient[] = { 0.1f, 0.1f, 0.1f, 1.0f };
+GLfloat sun_light_diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat sun_light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+GLfloat sun_light_position[] = { 0.0f, 0.0f, 0.0f,4 * M_PI };
 
 
 GLfloat calcViewerX(GLfloat theta_x, GLfloat theta_y, GLfloat zoomZ)
@@ -356,10 +368,10 @@ void drawPlanet(Planet& planet) {
 	glColor3f(1.0f, 1.0f, 1.0f);
 	drawOrbit(planet.distance_from_sun);
 
-	GLfloat mat_diffuse[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-	GLfloat mat_specular[] = { 0.8f, 0.8f, 0.8f, 1.0f };
-	GLfloat mat_ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-	GLfloat mat_shininess = { 0.0 };
+	GLfloat mat_diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat mat_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	GLfloat mat_ambient[] = { 0.3f, 0.3f, 0.3f, 1.0f };
+	GLfloat mat_shininess = { 20.0 };
 
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
@@ -394,15 +406,15 @@ void update() {
 
 
 void Draw() {
+	glLightfv(GL_LIGHT0, GL_POSITION, sun_light_position);
+
 	glDisable(GL_LIGHTING);
 	drawSun();
 	glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
 	// Rysowanie planet
 	for (int i = 0; i < sizeof(planets) / sizeof(Planet); ++i) {
 		drawPlanet(planets[i]);
 	}
-
 }
 
 
@@ -565,10 +577,6 @@ void MyInit(void)
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	// Kolor czyszczący (wypełnienia okna) ustawiono na czarny
 
-	GLfloat mat_diffuse[] = { 0.8, 0.8, 0.8, 1.0 };
-	GLfloat mat_specular[] = { 0.7, 0.7, 0.7, 1.0 };
-	GLfloat mat_ambient[] = { 0.7, 0.7, 0.7, 1.0 };
-	GLfloat mat_shininess = { 20.0 };
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
@@ -589,11 +597,6 @@ void MyInit(void)
 
 
 
-
-	GLfloat sun_light_ambient[] = { 0.1f, 0.1f, 0.1f, 1.0f };
-	GLfloat sun_light_diffuse[] = { 0.8f, 0.8f, 1.0f, 1.0f };
-	GLfloat sun_light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	GLfloat sun_light_position[] = { 0.0f, 0.0f, 0.0f,4 * M_PI };
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, sun_light_ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, sun_light_diffuse);
