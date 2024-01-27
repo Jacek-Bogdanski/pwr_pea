@@ -419,7 +419,8 @@ void RenderScene(void)
 
 	glLoadIdentity();
 
-	gluLookAt(viewer[0], viewer[1], viewer[2], viewerViewPoint[0], viewerViewPoint[1], viewerViewPoint[2], 0.0, 1.0, 0.0);
+	//gluLookAt(viewer[0], viewer[1], viewer[2], viewerViewPoint[0], viewerViewPoint[1], viewerViewPoint[2], 0.0, 1.0, 0.0);
+	gluLookAt(0.0f, 10.0f, 15.0f ,0,0,0, 0.0, 1.0, 0.0);
 	// Zdefiniowanie położenia obserwatora
 
 	glColor3f(1.0f, 1.0f, 1.0f);
@@ -563,13 +564,6 @@ void MyInit(void)
 {
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	// Kolor czyszczący (wypełnienia okna) ustawiono na czarny
-
-	gluLookAt(viewer[0], viewer[1], viewer[2], viewerViewPoint[0], viewerViewPoint[1], viewerViewPoint[2], 0.0, 1.0, 0.0);
-
-	//  Definicja materiału z jakiego zrobiony jest czajnik
-	//  i definicja źródła światła
-
-	// Definicja materiału z jakiego zrobiony jest czajnik
 
 	GLfloat mat_diffuse[] = { 0.8, 0.8, 0.8, 1.0 };
 	GLfloat mat_specular[] = { 0.7, 0.7, 0.7, 1.0 };
