@@ -6,23 +6,11 @@
 #include <cmath>
 #include <time.h>
 #define M_PI       3.14159265358979323846 
-
-#define G 6.674 * pow(10,-11)
-#define Msun  1.989 * pow(10,30)
-
-#define TIME_SLOW 10000000000
-#define ZOOM_SLOW 10
-
 // Typ definiujacy punkt o 3 wspolrzednych
 
 //położenie obserwatora
-static GLfloat viewer[] = { 0.0, 0.0, 0.0 };
+static GLfloat viewer[] = { 0.0, 0.0, 15.0 };
 static GLfloat viewerViewPoint[] = { 0.0, 0.0, 0.0 };
-
-GLfloat timeSpeed = 10;
-
-int cameraMode = 1;
-int zoom = 30;
 
 
 // zmienna definiująca tryb obrotu obiekt/obserwator
@@ -33,25 +21,25 @@ static GLfloat pix2angle;
 // 0 - nie naciśnięto żadnego klawisza
 // 1 - naciśnięty został lewy klawisz
 static GLint status = 0;
-
 // inicjalizacja położenia obserwatora
 static GLfloat theta_x = 0.0;   // kąt obrotu obiektu
-static GLfloat theta_y = 30.0;   // kąt obrotu obiektu
-
-static GLfloat theta_x1 = 180;   // kąt obrotu obiektu
-static GLfloat theta_y1 = 0.0;   // kąt obrotu obiektu
+static GLfloat theta_y = 0.0;   // kąt obrotu obiektu
+static GLfloat theta_z = 0.0;   // kąt obrotu obiektu
+static GLfloat theta_x1 = 0.0;   // kąt obrotu obiektu
+static GLfloat theta_y1 = M_PI;   // kąt obrotu obiektu
+static GLfloat theta_x2 = 0.0;   // kąt obrotu obiektu
+static GLfloat theta_y2 = -M_PI;   // kąt obrotu obiektu
 
 static int x_pos_old = 0;       // poprzednia pozycja kursora myszy
 static int delta_x = 0;        // różnica pomiędzy pozycją bieżącą i poprzednią kursora myszy
 static int y_pos_old = 0;
 static int delta_y = 0;
-
-GLfloat delta_pos_x = 0.0;
-GLfloat delta_pos_y = 0.0;
-GLfloat delta_pos_z = 0.0;
+static int z_pos_old = 0;
+static int delta_z = 0;
 
 struct Planet {
 	GLfloat distance_from_sun;
+	GLfloat orbit_time;
 	GLfloat rotation_time;
 	GLfloat radius;
 	GLfloat orbit_speed;
@@ -61,48 +49,27 @@ struct Planet {
 	GLuint textureId;
 };
 
-GLfloat calcOrbitSpeed(GLfloat distance){
-	GLfloat T = sqrt(4 * M_PI * M_PI / (G * Msun) * pow(distance,3));
-	GLfloat speed = 1 / T * timeSpeed / TIME_SLOW;
-	return speed;
-}
-
 // Przykład planet
 Planet planets[] = {
-	{ 5.0f, 0.1f, 0.5f, 0.10f, 0.1f, 0.02f, 0.0f }, // Merkury
-	{ 10.0f, 0.1f, 1.0f, 0.06f, 0.05f, 0.02f, 0.0f }, // Wenus
-	{ 15.0f, 0.1f, 1.5f, 0.03f, 0.03f, 0.02f, 0.0f }, // Ziemia
-	{ 20.0f, 0.1f, 1.0f, 0.02f, 0.02f, 0.02f, 0.0f }, // Mars
-	{ 25.0f, 0.1f, 2.0f, 0.01f, 0.01f, 0.02f, 0.0f }, // Jupiter
-	{ 30.0f, 0.1f, 1.8f, 0.01f, 0.01f, 0.02f, 0.0f }, // Saturn
-	{ 35.0f, 0.1f, 1.7f, 0.01f, 0.01f, 0.02f, 0.0f }, // Uranus
-	{ 40.0f,  0.1f, 1.4f, 0.01f, 0.01f, 0.02f, 0.0f }, // Neptune
+	{ 3.0f, 365.0f, 0.1f, 0.3f, 0.10f, 0.1f, 0.02f, 0.0f }, // Merkury
+	{ 4.0f, 365.0f, 0.1f, 0.5f, 0.06f, 0.05f, 0.02f, 0.0f }, // Wenus
+	{ 5.0f, 365.0f, 0.1f, 0.7f, 0.03f, 0.03f, 0.02f, 0.0f }, // Ziemia
+	{ 6.0f, 365.0f, 0.1f, 1.0f, 0.02f, 0.02f, 0.02f, 0.0f }, // Mars
+	{ 10.0f, 365.0f, 0.1f, 2.2f, 0.01f, 0.01f, 0.02f, 0.0f }, // Jupiter
 };
-
-
 GLuint textureSUN;
 
 
-GLfloat calcViewerX(GLfloat theta_x, GLfloat theta_y, GLfloat zoomZ)
-{
-	return zoomZ * cos(theta_y * M_PI / 180) * cos(theta_x * M_PI / 180);
+GLfloat observerX(GLfloat R, GLfloat azymut, GLfloat elewacja) {
+	return R * cos(azymut) * (float)cos(elewacja);
 }
 
-GLfloat calcViewerY(GLfloat theta_x, GLfloat theta_y, GLfloat zoomZ)
-{
-	return zoomZ * sin(theta_x * M_PI / 180);
+GLfloat observerY(GLfloat R, GLfloat elewacja) {
+	return R * sin(elewacja);
 }
 
-GLfloat calcViewerZ(GLfloat theta_x, GLfloat theta_y, GLfloat zoomZ)
-{
-	return zoomZ * sin(theta_y * M_PI / 180) * cos(theta_x * M_PI / 180);
-}
-
-GLfloat floatMod(GLfloat number, GLfloat mod)
-{
-	while (number < 0) { number += mod; }
-	while (number > mod) { number -= mod; }
-	return number;
+GLfloat observerZ(GLfloat R, GLfloat azymut, GLfloat elewacja) {
+	return R * sin(azymut) * (float)cos(elewacja);
 }
 
 GLbyte* LoadTGAImage(const char* FileName, GLint* ImWidth, GLint* ImHeight, GLint* ImComponents, GLenum* ImFormat)
@@ -171,20 +138,35 @@ GLbyte* LoadTGAImage(const char* FileName, GLint* ImWidth, GLint* ImHeight, GLin
 }
 
 
+void Mouse(int btn, int state, int x, int y)
+{
+	if (btn == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
+	{
+		x_pos_old = x;        
+		y_pos_old = y;
+		status = 1;
+	}
+	else if (btn == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
+	{
+		y_pos_old = y; // jako pozycji poprzedniej					 
+		status = 2;          // wcięnięty został prawy klawisz myszy
+	}
+	else {
+		status = 0;
+	}
+}
+
 /*************************************************************************************/
 // Funkcja "monitoruje" położenie kursora myszy i ustawia wartości odpowiednich
 // zmiennych globalnych
 
 float sensitivity = 0.1f; // Możesz dostosować tę wartość do swoich potrzeb
 
-
 void Motion(GLsizei x, GLsizei y) {
 	delta_x = x - x_pos_old;
 	x_pos_old = x;
 	delta_y = y - y_pos_old;
 	y_pos_old = y;
-
-	/*
 	if (status == 1) { // Jeśli lewy przycisk myszy jest wciśnięty
 		theta_x += delta_x * pix2angle * sensitivity;
 		theta_y += delta_y * pix2angle * sensitivity;
@@ -205,110 +187,9 @@ void Motion(GLsizei x, GLsizei y) {
 		delta_y = 0; // Reset delta_y do zera
 	}
 
-	*/
-
-	// kamera swobodna
-	if (cameraMode == 1) {
-
-		if (status == 1)
-		{
-			theta_y += delta_y * pix2angle;
-			if (theta_y > 90 && theta_y < 270)
-			{
-				theta_x -= delta_x * pix2angle;
-			}
-			else
-			{
-				theta_x += delta_x * pix2angle;
-			}
-
-			if (theta_y >= 90 && theta_y < 180) {
-				theta_y = 89.9;
-			}
-			if (theta_y <= 270 && theta_y > 180) {
-				theta_y = 270.1;
-			}
-
-			theta_x = floatMod(theta_x, 360);
-			theta_y = floatMod(theta_y, 360);
-		}
-
-		if
-			(status == 2)
-		{
-			zoom += delta_y / ZOOM_SLOW;
-		}
-
-
-		viewer[0] = calcViewerX(theta_y, theta_x, zoom);
-		viewer[1] = calcViewerY(theta_y, theta_x, zoom); 
-		viewer[2] = calcViewerZ(theta_y, theta_x, zoom); 
-
-		viewerViewPoint[0] = 0;
-		viewerViewPoint[1] = 0;
-		viewerViewPoint[2] = 0;
-	}
-	else {
-
-		if (status == 1)
-		{
-			theta_y1 += delta_y * pix2angle;
-			theta_x1 -= delta_x * pix2angle;
-
-			if (theta_y1 > 90) {
-				theta_y1 = 90;
-			}
-			if (theta_y1 < -90) {
-				theta_y1 = -90;
-			}
-
-			viewerViewPoint[0] = viewer[0] + cos(theta_x1 * M_PI / 180);
-			viewerViewPoint[1] = viewer[1] + sin(theta_y1 * M_PI / 180);
-			viewerViewPoint[2] = viewer[2] + sin(theta_x1 * M_PI / 180);
-		}
-
-		if (status == 2) {
-
-			delta_pos_x = (viewerViewPoint[0] - viewer[0]) / 10 * delta_y * pix2angle;
-			delta_pos_y = (viewerViewPoint[1] - viewer[1]) / 10 * delta_y * pix2angle;
-			delta_pos_z = (viewerViewPoint[2] - viewer[2]) / 10 * delta_y * pix2angle;
-
-			viewer[0] += delta_pos_x;
-			viewer[1] += delta_pos_y;
-			viewer[2] += delta_pos_z;
-
-			viewerViewPoint[0] += delta_pos_x;
-			viewerViewPoint[1] += delta_pos_y;
-			viewerViewPoint[2] += delta_pos_z;
-		}
-	}
-
 	glutPostRedisplay();
 }
 
-
-
-void Mouse(int btn, int state, int x, int y)
-{
-	if (btn == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
-	{
-		x_pos_old = x;
-		y_pos_old = y;
-		status = 1;
-	}
-	else if (btn == GLUT_RIGHT_BUTTON && state == GLUT_DOWN)
-	{
-		x_pos_old = x;
-		y_pos_old = y;
-		status = 2;
-	}
-	else {
-		status = 0;
-	}
-
-	Motion(x_pos_old, y_pos_old);
-
-}
 
 /*************************************************************************************/
 void drawTexturedSphere(GLuint textureID, float radius) {
@@ -330,7 +211,7 @@ void drawOrbit(float radius) {
 	GLfloat mat_diffuse[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	GLfloat mat_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
 	GLfloat mat_ambient[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	GLfloat mat_shininess = { 20.0f };
+	GLfloat mat_shininess = { 20.0f};
 
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
@@ -342,14 +223,16 @@ void drawOrbit(float radius) {
 	glBegin(GL_LINE_LOOP);
 	for (int i = 0; i < num_segments; i++) {
 		angle = 2.0f * M_PI * float(i) / float(num_segments); // 360 stopni podzielone na ilość segmentów
-		glVertex3f(cos(angle) * radius, 0.0f, sin(angle) * radius); // Użyj osi Y i Z
+		glVertex3f(cos(angle) * radius,0.0f , sin(angle) * radius); // Użyj osi Y i Z
 	}
 	glEnd();
 }
 
 
 void drawSun() {
-	drawTexturedSphere(textureSUN, 2.5f); // Użyj odpowiedniej wartości promienia dla Słońca
+	 
+	drawTexturedSphere(textureSUN, 2.0f); // Użyj odpowiedniej wartości promienia dla Słońca
+
 }
 
 void drawPlanet(Planet& planet) {
@@ -360,21 +243,21 @@ void drawPlanet(Planet& planet) {
 	GLfloat mat_specular[] = { 0.8f, 0.8f, 0.8f, 1.0f };
 	GLfloat mat_ambient[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	GLfloat mat_shininess = { 0.0 };
-
+	
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 	glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess);
 
-
+	
 	glPushMatrix();
 	glRotatef(planet.angle, 0.0f, 1.0f, 0.0f); // Obrót wokół Słońca
 	glTranslatef(planet.distance_from_sun, 0.0f, 0.0f); // Ustawienie odległości od Słońca
 	glRotatef(planet.rotation_angle, 0.0f, 1.0f, 0.0f); // Obrót wokół własnej osi
-	glRotatef(90.0f, 1.0, 0.0, 0.0); // Obrót planety do odpowiedniej orientacji
 	drawTexturedSphere(planet.textureId, planet.radius); // Użyj odpowiedniej wartości promienia dla planety
 	glPopMatrix();
 }
+
 
 void update() {
 	// Aktualizacja pozycji planet
@@ -383,12 +266,12 @@ void update() {
 		if (planets[i].angle > 360.0f) {
 			planets[i].angle -= 360.0f;
 		}
-		planets[i].rotation_angle += planets[i].rotation_speed* timeSpeed;
+		planets[i].rotation_angle += planets[i].rotation_speed;
 		if (planets[i].rotation_angle > 360.0f) {
 			planets[i].rotation_angle -= 360.0f;
 		}
 	}
-
+	
 	glutPostRedisplay();
 }
 
@@ -400,8 +283,8 @@ void Draw() {
 	// Rysowanie planet
 	for (int i = 0; i < sizeof(planets) / sizeof(Planet); ++i) {
 		drawPlanet(planets[i]);
-	}
-
+	}	
+	
 }
 
 
@@ -423,7 +306,11 @@ void RenderScene(void)
 	gluLookAt(0.0f, 10.0f, 15.0f ,0,0,0, 0.0, 1.0, 0.0);
 	// Zdefiniowanie położenia obserwatora
 
-	glColor3f(1.0f, 1.0f, 1.0f);
+	// Narysowanie osi przy pomocy funkcji zdefiniowanej powyżej 
+
+
+	glRotatef(theta_x, 0.0, 1.0, 0.0);  //obrót obiektu o nowy kąt
+	glRotatef(theta_y, 1.0, 0.0, 0.0);  //obrót obiektu o nowy kąt
 
 	Draw();
 	glFlush();
@@ -478,33 +365,9 @@ void loadTexturesPlanets() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	free(pBytes);
 
-	pBytes = LoadTGAImage("jupiter.tga", &ImWidth, &ImHeight, &ImComponents, &ImFormat);
+	pBytes = LoadTGAImage("fobos.tga", &ImWidth, &ImHeight, &ImComponents, &ImFormat);
 	glGenTextures(1, &planets[4].textureId);
 	glBindTexture(GL_TEXTURE_2D, planets[4].textureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, ImComponents, ImWidth, ImHeight, 0, ImFormat, GL_UNSIGNED_BYTE, pBytes);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	free(pBytes);
-
-	pBytes = LoadTGAImage("saturn.tga", &ImWidth, &ImHeight, &ImComponents, &ImFormat);
-	glGenTextures(1, &planets[5].textureId);
-	glBindTexture(GL_TEXTURE_2D, planets[5].textureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, ImComponents, ImWidth, ImHeight, 0, ImFormat, GL_UNSIGNED_BYTE, pBytes);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	free(pBytes);
-
-	pBytes = LoadTGAImage("uranus.tga", &ImWidth, &ImHeight, &ImComponents, &ImFormat);
-	glGenTextures(1, &planets[6].textureId);
-	glBindTexture(GL_TEXTURE_2D, planets[6].textureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, ImComponents, ImWidth, ImHeight, 0, ImFormat, GL_UNSIGNED_BYTE, pBytes);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	free(pBytes);
-
-	pBytes = LoadTGAImage("neptune.tga", &ImWidth, &ImHeight, &ImComponents, &ImFormat);
-	glGenTextures(1, &planets[7].textureId);
-	glBindTexture(GL_TEXTURE_2D, planets[7].textureId);
 	glTexImage2D(GL_TEXTURE_2D, 0, ImComponents, ImWidth, ImHeight, 0, ImFormat, GL_UNSIGNED_BYTE, pBytes);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -516,40 +379,14 @@ void loadTexturesPlanets() {
 void keys(unsigned char key, int x, int y)
 {
 	if (key == 'i') {
-		timeSpeed += 1.0f;
 		for (int i = 0; i < sizeof(planets) / sizeof(Planet); ++i) {
-			planets[i].orbit_speed = calcOrbitSpeed(planets[i].distance_from_sun);
+			planets[i].orbit_speed += 0.01f;
 		}
 	}
 	if (key == 'd') {
-		timeSpeed -= 1.0f;
-		if(timeSpeed < 0){
-			timeSpeed = 0;
-		}
 		for (int i = 0; i < sizeof(planets) / sizeof(Planet); ++i) {
-			planets[i].orbit_speed = calcOrbitSpeed(planets[i].distance_from_sun);
+			planets[i].orbit_speed -= 0.01f;
 		}
-	}
-	if (key == 'm') {
-		if (cameraMode == 1) {
-			cameraMode = 2;
-		}
-		else {
-			cameraMode = 1;
-		}
-		Motion(x_pos_old, y_pos_old);
-	}
-
-	if (key == '[') {
-		zoom += 1.0f;
-		Motion(x_pos_old, y_pos_old);
-	}
-	if (key == ']') {
-		zoom -= 1.0f;
-		if (zoom <= 0) {
-			zoom = 0.1;
-		}
-		Motion(x_pos_old, y_pos_old);
 	}
 
 	RenderScene(); // przerysowywanie obrazu sceny
@@ -573,10 +410,10 @@ void MyInit(void)
 	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 	glMaterialf(GL_FRONT, GL_SHININESS, mat_shininess);
-	/*************************************************************************************/
-	// Definicja źródła światła nr 1
+/*************************************************************************************/
+// Definicja źródła światła nr 1
 
-
+	
 	GLfloat att_constant = { 1.0 };
 	// składowa stała ds dla modelu zmian oświetlenia w funkcji
 	// odległości od źródła
@@ -587,40 +424,35 @@ void MyInit(void)
 
 	GLfloat att_quadratic = { 0.001 };
 
+	
 
-
-
+	
 	GLfloat sun_light_ambient[] = { 0.1f, 0.1f, 0.1f, 1.0f };
 	GLfloat sun_light_diffuse[] = { 0.8f, 0.8f, 1.0f, 1.0f };
 	GLfloat sun_light_specular[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-	GLfloat sun_light_position[] = { 0.0f, 0.0f, 0.0f,4 * M_PI };
+	GLfloat sun_light_position[] = { 0.0f, 0.0f, 0.0f,4*M_PI };
 
 	glLightfv(GL_LIGHT0, GL_AMBIENT, sun_light_ambient);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, sun_light_diffuse);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, sun_light_specular);
 	glLightfv(GL_LIGHT0, GL_POSITION, sun_light_position);
 
-
+	
 
 	glLightf(GL_LIGHT0, GL_CONSTANT_ATTENUATION, att_constant);
 	glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, att_linear);
 	glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, att_quadratic);
 
 
-
+	
 	glShadeModel(GL_SMOOTH); // właczenie łagodnego cieniowania
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);      // Włączenie światła nr 0 (Słońce)
 	glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);  // Włączenie mechanizmu z-bufora
+	
 
 	loadTexturesPlanets();
-
-	for (int i = 0; i < sizeof(planets) / sizeof(Planet); ++i) {
-		planets[i].orbit_speed = calcOrbitSpeed(planets[i].distance_from_sun);
-	}
-
-	Motion(0, 0);
 }
 
 /*************************************************************************************/
@@ -668,10 +500,10 @@ void ChangeSize(GLsizei horizontal, GLsizei vertical)
 
 void init() {
 
-	std::cout << "Grafika komputerowa i komunikacja czlowiek-komputer\nMini Projekt - Uklad Sloneczny\nMichal Kazmierczak\n263924\n\n";
+	std::cout << "Grafika komputerowa i komunikacja czlowiek-komputer\nLaboratorium nr. 5\nMichal Kazmierczak\n263924\n\n";
 }
 
-int main(void)
+void main(void)
 {
 	init();
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -706,8 +538,6 @@ int main(void)
 
 	glutMainLoop();
 	// Funkcja uruchamia szkielet biblioteki GLUT
-
-	return 0;
 }
 
 /*************************************************************************************/
