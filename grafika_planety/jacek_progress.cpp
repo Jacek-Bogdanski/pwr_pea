@@ -38,10 +38,17 @@ static GLint status = 0;
 static GLfloat theta_x = 0.0;   // kąt obrotu obiektu
 static GLfloat theta_y = 30.0;   // kąt obrotu obiektu
 
+static GLfloat theta_x1 = 180;   // kąt obrotu obiektu
+static GLfloat theta_y1 = 0.0;   // kąt obrotu obiektu
+
 static int x_pos_old = 0;       // poprzednia pozycja kursora myszy
 static int delta_x = 0;        // różnica pomiędzy pozycją bieżącą i poprzednią kursora myszy
 static int y_pos_old = 0;
 static int delta_y = 0;
+
+GLfloat delta_pos_x = 0.0;
+GLfloat delta_pos_y = 0.0;
+GLfloat delta_pos_z = 0.0;
 
 struct Planet {
 	GLfloat distance_from_sun;
@@ -215,8 +222,6 @@ void Motion(GLsizei x, GLsizei y) {
 				theta_x += delta_x * pix2angle;
 			}
 
-			std::cout << theta_y << std::endl;
-
 			if (theta_y >= 90 && theta_y < 180) {
 				theta_y = 89.9;
 			}
@@ -244,12 +249,38 @@ void Motion(GLsizei x, GLsizei y) {
 		viewerViewPoint[2] = 0;
 	}
 	else {
-		viewer[0] = 0;
-		viewer[1] = zoom;
-		viewer[2] = 0;
-		viewerViewPoint[0] = 0;
-		viewerViewPoint[1] = 0;
-		viewerViewPoint[2] = 0;
+
+		if (status == 1)
+		{
+			theta_y1 += delta_y * pix2angle;
+			theta_x1 -= delta_x * pix2angle;
+
+			if (theta_y1 > 90) {
+				theta_y1 = 90;
+			}
+			if (theta_y1 < -90) {
+				theta_y1 = -90;
+			}
+
+			viewerViewPoint[0] = viewer[0] + cos(theta_x1 * M_PI / 180);
+			viewerViewPoint[1] = viewer[1] + sin(theta_y1 * M_PI / 180);
+			viewerViewPoint[2] = viewer[2] + sin(theta_x1 * M_PI / 180);
+		}
+
+		if (status == 2) {
+
+			delta_pos_x = (viewerViewPoint[0] - viewer[0]) / 10 * delta_y * pix2angle;
+			delta_pos_y = (viewerViewPoint[1] - viewer[1]) / 10 * delta_y * pix2angle;
+			delta_pos_z = (viewerViewPoint[2] - viewer[2]) / 10 * delta_y * pix2angle;
+
+			viewer[0] += delta_pos_x;
+			viewer[1] += delta_pos_y;
+			viewer[2] += delta_pos_z;
+
+			viewerViewPoint[0] += delta_pos_x;
+			viewerViewPoint[1] += delta_pos_y;
+			viewerViewPoint[2] += delta_pos_z;
+		}
 	}
 
 	glutPostRedisplay();
@@ -318,7 +349,7 @@ void drawOrbit(float radius) {
 
 
 void drawSun() {
-	drawTexturedSphere(textureSUN, 2.0f); // Użyj odpowiedniej wartości promienia dla Słońca
+	drawTexturedSphere(textureSUN, 2.5f); // Użyj odpowiedniej wartości promienia dla Słońca
 }
 
 void drawPlanet(Planet& planet) {
@@ -344,44 +375,6 @@ void drawPlanet(Planet& planet) {
 	drawTexturedSphere(planet.textureId, planet.radius); // Użyj odpowiedniej wartości promienia dla planety
 	glPopMatrix();
 }
-
-typedef GLfloat point3[3];
-void Axes(void)
-{
-
-	point3  x_min = { -5.0, 0.0, 0.0 };
-	point3  x_max = { 5.0, 0.0, 0.0 };
-	// poczï¿½tek i koniec obrazu osi x
-
-	point3  y_min = { 0.0, -5.0, 0.0 };
-	point3  y_max = { 0.0,  5.0, 0.0 };
-	// poczï¿½tek i koniec obrazu osi y
-
-	point3  z_min = { 0.0, 0.0, -5.0 };
-	point3  z_max = { 0.0, 0.0,  5.0 };
-	//  poczï¿½tek i koniec obrazu osi y
-	glColor3f(1.0f, 0.0f, 0.0f);  // kolor rysowania osi - czerwony
-	glBegin(GL_LINES); // rysowanie osi x
-	glVertex3fv(x_min);
-	glVertex3fv(x_max);
-	glEnd();
-
-	glColor3f(0.0f, 1.0f, 0.0f);  // kolor rysowania - zielony
-	glBegin(GL_LINES);  // rysowanie osi y
-
-	glVertex3fv(y_min);
-	glVertex3fv(y_max);
-	glEnd();
-
-	glColor3f(0.0f, 0.0f, 1.0f);  // kolor rysowania - niebieski
-	glBegin(GL_LINES); // rysowanie osi z
-
-	glVertex3fv(z_min);
-	glVertex3fv(z_max);
-	glEnd();
-
-}
-
 
 void update() {
 	// Aktualizacja pozycji planet
@@ -428,8 +421,6 @@ void RenderScene(void)
 
 	gluLookAt(viewer[0], viewer[1], viewer[2], viewerViewPoint[0], viewerViewPoint[1], viewerViewPoint[2], 0.0, 1.0, 0.0);
 	// Zdefiniowanie położenia obserwatora
-
-	Axes();
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 
@@ -545,6 +536,7 @@ void keys(unsigned char key, int x, int y)
 		else {
 			cameraMode = 1;
 		}
+		Motion(x_pos_old, y_pos_old);
 	}
 
 	if (key == '[') {
@@ -553,8 +545,8 @@ void keys(unsigned char key, int x, int y)
 	}
 	if (key == ']') {
 		zoom -= 1.0f;
-		if (zoom < 0) {
-			zoom = 0;
+		if (zoom <= 0) {
+			zoom = 0.1;
 		}
 		Motion(x_pos_old, y_pos_old);
 	}
