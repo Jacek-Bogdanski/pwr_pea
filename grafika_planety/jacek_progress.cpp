@@ -448,7 +448,7 @@ void loadTexturesPlanets() {
 	GLint ImWidth, ImHeight, ImComponents;
 	GLenum ImFormat;
 
-	// Załaduj teksturę Słońca
+	// Tekstura Słońca
 	pBytes = LoadTGAImage("sun.tga", &ImWidth, &ImHeight, &ImComponents, &ImFormat);
 	glGenTextures(1, &textureSUN);
 	glBindTexture(GL_TEXTURE_2D, textureSUN);
@@ -457,7 +457,7 @@ void loadTexturesPlanets() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	free(pBytes);
 
-	// Załaduj teksturę Ziemi
+	// Tekstura Merkurego
 	pBytes = LoadTGAImage("mercury.tga", &ImWidth, &ImHeight, &ImComponents, &ImFormat);
 	glGenTextures(1, &planets[0].textureId);
 	glBindTexture(GL_TEXTURE_2D, planets[0].textureId);
@@ -466,6 +466,7 @@ void loadTexturesPlanets() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	free(pBytes);
 
+	// Tekstura Venus
 	pBytes = LoadTGAImage("venus.tga", &ImWidth, &ImHeight, &ImComponents, &ImFormat);
 	glGenTextures(1, &planets[1].textureId);
 	glBindTexture(GL_TEXTURE_2D, planets[1].textureId);
@@ -474,6 +475,7 @@ void loadTexturesPlanets() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	free(pBytes);
 
+	// Tekstura Ziemii
 	pBytes = LoadTGAImage("earth.tga", &ImWidth, &ImHeight, &ImComponents, &ImFormat);
 	glGenTextures(1, &planets[2].textureId);
 	glBindTexture(GL_TEXTURE_2D, planets[2].textureId);
@@ -482,6 +484,7 @@ void loadTexturesPlanets() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	free(pBytes);
 
+	// Tekstura Marsa
 	pBytes = LoadTGAImage("mars.tga", &ImWidth, &ImHeight, &ImComponents, &ImFormat);
 	glGenTextures(1, &planets[3].textureId);
 	glBindTexture(GL_TEXTURE_2D, planets[3].textureId);
@@ -490,6 +493,7 @@ void loadTexturesPlanets() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	free(pBytes);
 
+	// Tekstura Jowisza
 	pBytes = LoadTGAImage("jupiter.tga", &ImWidth, &ImHeight, &ImComponents, &ImFormat);
 	glGenTextures(1, &planets[4].textureId);
 	glBindTexture(GL_TEXTURE_2D, planets[4].textureId);
@@ -498,6 +502,7 @@ void loadTexturesPlanets() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	free(pBytes);
 
+	// Tekstura Saturna
 	pBytes = LoadTGAImage("saturn.tga", &ImWidth, &ImHeight, &ImComponents, &ImFormat);
 	glGenTextures(1, &planets[5].textureId);
 	glBindTexture(GL_TEXTURE_2D, planets[5].textureId);
@@ -506,6 +511,7 @@ void loadTexturesPlanets() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	free(pBytes);
 
+	// Tekstura Urana
 	pBytes = LoadTGAImage("uranus.tga", &ImWidth, &ImHeight, &ImComponents, &ImFormat);
 	glGenTextures(1, &planets[6].textureId);
 	glBindTexture(GL_TEXTURE_2D, planets[6].textureId);
@@ -514,6 +520,7 @@ void loadTexturesPlanets() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	free(pBytes);
 
+	// Tekstura Neptuna
 	pBytes = LoadTGAImage("neptune.tga", &ImWidth, &ImHeight, &ImComponents, &ImFormat);
 	glGenTextures(1, &planets[7].textureId);
 	glBindTexture(GL_TEXTURE_2D, planets[7].textureId);
@@ -521,7 +528,6 @@ void loadTexturesPlanets() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	free(pBytes);
-
 }
 
 
